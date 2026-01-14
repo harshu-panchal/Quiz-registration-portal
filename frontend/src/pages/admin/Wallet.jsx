@@ -32,12 +32,23 @@ import {
 import StatusModal from "../../components/StatusModal";
 import Modal from "../../components/Modal";
 
+import { transactionService } from "../../services/transactionService";
+
 const Wallet = () => {
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
     type: "info",
     title: "",
     message: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState([]);
+  const [statsData, setStatsData] = useState({
+    totalBalance: 0,
+    monthlyIncome: 0,
+    totalPayouts: 0,
+    revenueTrend: []
   });
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,104 +61,60 @@ const Wallet = () => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
 
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await transactionService.getTransactions({
+        type: activeFilter,
+        search: searchTerm,
+        limit: 50 // Fetch more for scrolling
+      });
+
+      if (response.success) {
+        setTransactions(response.data.map(tx => ({
+          id: tx.transactionId,
+          type: tx.type,
+          source: tx.source,
+          amount: `${tx.type === 'Income' ? '+' : '-'}₹${tx.amount.toLocaleString()}`,
+          date: new Date(tx.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+          city: tx.city,
+          status: tx.status,
+          icon: tx.type === 'Income' ? ArrowDownLeft : ArrowUpRight,
+          iconColor: tx.type === 'Income' ? "text-green-600" : "text-orange-600",
+          iconBg: tx.type === 'Income' ? "bg-green-50" : "bg-orange-50",
+          description: tx.description,
+          method: tx.paymentMethod
+        })));
+
+        setStatsData(response.stats); // Use stats from backend
+      }
+    } catch (error) {
+      console.error("Failed to fetch transactions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchTransactions();
+  }, [activeFilter, searchTerm]); // Refetch when filters change
+
   const revenueTrend = useMemo(() => {
-    const data = [
-      { month: "Jan", revenue: 450000 },
-      { month: "Feb", revenue: 520000 },
-      { month: "Mar", revenue: 480000 },
-      { month: "Apr", revenue: 610000 },
-      { month: "May", revenue: 590000 },
-      { month: "Jun", revenue: 720000 },
+    // Backend should return data in correct format, but fallback to empty if needed
+    if (statsData.revenueTrend && statsData.revenueTrend.length > 0) {
+      return statsData.revenueTrend;
+    }
+    return [
+      { month: "Jan", revenue: 0 },
+      { month: "Feb", revenue: 0 },
+      { month: "Mar", revenue: 0 },
+      { month: "Apr", revenue: 0 },
+      { month: "May", revenue: 0 },
+      { month: "Jun", revenue: 0 },
     ];
-    return timeRange === "Last Year" ? [...data, ...data] : data;
-  }, [timeRange]);
+  }, [statsData.revenueTrend]);
 
-  const transactions = [
-    {
-      id: "TX-9012",
-      type: "Income",
-      source: "Quiz Subscription - Premium Plan",
-      amount: "+₹24,999.00",
-      date: "Oct 24, 2023",
-      city: "Mumbai",
-      status: "Completed",
-      icon: ArrowDownLeft,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-50",
-      description:
-        "Payment received for premium quiz subscription from Mumbai region.",
-      method: "Razorpay Inline",
-    },
-    {
-      id: "TX-9011",
-      type: "Payout",
-      source: "Instructor Payout - Alex Smith",
-      amount: "-₹1,00,000.00",
-      date: "Oct 23, 2023",
-      city: "London",
-      status: "Processing",
-      icon: ArrowUpRight,
-      iconColor: "text-orange-600",
-      iconBg: "bg-orange-50",
-      description:
-        "Monthly instructor revenue payout for the period of September 2023.",
-      method: "Direct Bank Transfer",
-    },
-    {
-      id: "TX-9010",
-      type: "Income",
-      source: "Corporate License - TechCorp",
-      amount: "+₹2,04,500.00",
-      date: "Oct 22, 2023",
-      city: "New York",
-      status: "Completed",
-      icon: ArrowDownLeft,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-50",
-      description: "Annual corporate license renewal for 500+ users.",
-      method: "Stripe Connect",
-    },
-    {
-      id: "TX-9009",
-      type: "Income",
-      source: "Single Quiz Purchase - Biology 101",
-      amount: "+₹3,750.00",
-      date: "Oct 21, 2023",
-      city: "Dubai",
-      status: "Completed",
-      icon: ArrowDownLeft,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-50",
-      description:
-        "Individual course purchase for Biology 101 certificate course.",
-      method: "PayPal",
-    },
-    {
-      id: "TX-9008",
-      type: "Payout",
-      source: "AWS Infrastructure Costs",
-      amount: "-₹37,500.00",
-      date: "Oct 20, 2023",
-      city: "Global",
-      status: "Completed",
-      icon: ArrowUpRight,
-      iconColor: "text-red-600",
-      iconBg: "bg-red-50",
-      description:
-        "Monthly server hosting and infrastructure maintenance fees.",
-      method: "Auto-debit Card",
-    },
-  ];
-
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter(
-      (tx) =>
-        (activeFilter === "All" || tx.type === activeFilter) &&
-        (tx.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tx.city.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [searchTerm, transactions, activeFilter]);
+  const filteredTransactions = transactions; // Filtering is handled by backend + local useEffect re-fetch
 
   const handleWithdraw = () => {
     setWithdrawModalOpen(true);
@@ -165,21 +132,21 @@ const Wallet = () => {
   const stats = [
     {
       label: "Total Balance",
-      value: "₹10,45,000.00",
-      change: "+12.5%",
+      value: `₹${statsData.totalBalance.toLocaleString()}`,
+      change: "+12.5%", // Dynamic change calculation would require historical data comparison
       icon: WalletIcon,
       trend: "up",
     },
     {
       label: "Monthly Income",
-      value: "₹6,00,000.00",
+      value: `₹${statsData.monthlyIncome.toLocaleString()}`,
       change: "+8.2%",
       icon: ArrowDownLeft,
       trend: "up",
     },
     {
       label: "Total Payouts",
-      value: "₹1,37,500.00",
+      value: `₹${statsData.totalPayouts.toLocaleString()}`,
       change: "-3.1%",
       icon: ArrowUpRight,
       trend: "down",
@@ -237,9 +204,8 @@ const Wallet = () => {
                     {stat.value}
                   </h3>
                   <span
-                    className={`text-[10px] font-bold ${
-                      stat.trend === "up" ? "text-green-500" : "text-red-500"
-                    }`}>
+                    className={`text-[10px] font-bold ${stat.trend === "up" ? "text-green-500" : "text-red-500"
+                      }`}>
                     {stat.change}
                   </span>
                 </div>
@@ -381,70 +347,73 @@ const Wallet = () => {
                 </div>
                 <button
                   onClick={() => setFilterModalOpen(true)}
-                  className={`p-2.5 rounded-2xl border transition-all shadow-sm ${
-                    activeFilter !== "All"
+                  className={`p-2.5 rounded-2xl border transition-all shadow-sm ${activeFilter !== "All"
                       ? "bg-primary-50 border-primary-200 text-primary-600"
                       : "bg-white border-slate-200 text-slate-500 hover:text-primary-600 hover:border-primary-100"
-                  }`}>
+                    }`}>
                   <Filter className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <div className="divide-y divide-slate-50">
-              {filteredTransactions.map((tx, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + idx * 0.05 }}
-                  onClick={() => handleRowClick(tx)}
-                  className="p-6 hover:bg-slate-50/80 transition-all group cursor-pointer">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-5">
-                      <div
-                        className={`w-14 h-14 rounded-2xl ${tx.iconBg} ${tx.iconColor} flex items-center justify-center transition-all duration-500 group-hover:rotate-[10deg] group-hover:scale-110 shadow-sm`}>
-                        <tx.icon className="w-6 h-6" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-black text-slate-900 group-hover:text-primary-600 transition-colors">
-                          {tx.source}
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <MapPin className="w-3 h-3 text-primary-400" />
-                            {tx.city}
-                          </span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <Calendar className="w-3 h-3 text-primary-400" />
-                            {tx.date}
-                          </span>
+            {loading ? (
+              <div className="p-12 text-center text-slate-400">Loading transactions...</div>
+            ) : filteredTransactions.length === 0 ? (
+              <div className="p-12 text-center text-slate-400">No transactions found.</div>
+            ) : (
+              <div className="divide-y divide-slate-50">
+                {filteredTransactions.map((tx, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + idx * 0.05 }}
+                    onClick={() => handleRowClick(tx)}
+                    className="p-6 hover:bg-slate-50/80 transition-all group cursor-pointer">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-5">
+                        <div
+                          className={`w-14 h-14 rounded-2xl ${tx.iconBg} ${tx.iconColor} flex items-center justify-center transition-all duration-500 group-hover:rotate-[10deg] group-hover:scale-110 shadow-sm`}>
+                          <tx.icon className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-black text-slate-900 group-hover:text-primary-600 transition-colors">
+                            {tx.source}
+                          </p>
+                          <div className="flex items-center gap-4">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                              <MapPin className="w-3 h-3 text-primary-400" />
+                              {tx.city}
+                            </span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                              <Calendar className="w-3 h-3 text-primary-400" />
+                              {tx.date}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5">
+                        <p
+                          className={`text-base font-black ${tx.amount.startsWith("+")
+                              ? "text-green-600"
+                              : "text-slate-900"
+                            }`}>
+                          {tx.amount}
+                        </p>
+                        <span
+                          className={`text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1 rounded-full ${tx.status === "Completed"
+                              ? "bg-green-100 text-green-600"
+                              : "bg-orange-100 text-orange-600"
+                            }`}>
+                          {tx.status}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5">
-                      <p
-                        className={`text-base font-black ${
-                          tx.amount.startsWith("+")
-                            ? "text-green-600"
-                            : "text-slate-900"
-                        }`}>
-                        {tx.amount}
-                      </p>
-                      <span
-                        className={`text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1 rounded-full ${
-                          tx.status === "Completed"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-orange-100 text-orange-600"
-                        }`}>
-                        {tx.status}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
 
             <div className="p-6 bg-slate-50/30 border-t border-slate-50 text-center">
               <button
@@ -635,11 +604,10 @@ const Wallet = () => {
                 </p>
               </div>
               <span
-                className={`text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full ${
-                  selectedTransaction.status === "Completed"
+                className={`text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full ${selectedTransaction.status === "Completed"
                     ? "bg-green-100 text-green-600"
                     : "bg-orange-100 text-orange-600"
-                }`}>
+                  }`}>
                 {selectedTransaction.status}
               </span>
             </div>
@@ -768,11 +736,10 @@ const Wallet = () => {
                     setActiveFilter(type);
                     setFilterModalOpen(false);
                   }}
-                  className={`w-full p-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-between ${
-                    activeFilter === type
+                  className={`w-full p-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-between ${activeFilter === type
                       ? "bg-primary-600 text-white shadow-lg shadow-primary-600/20"
                       : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                  }`}>
+                    }`}>
                   {type}
                   {activeFilter === type && (
                     <div className="w-2 h-2 rounded-full bg-white"></div>

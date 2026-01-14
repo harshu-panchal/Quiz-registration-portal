@@ -14,6 +14,14 @@ const settingsSchema = mongoose.Schema({
     maintenanceMode: {
         type: Boolean,
         default: false
+    },
+    language: {
+        type: String,
+        default: 'English (US)'
+    },
+    theme: {
+        type: String,
+        default: 'Light'
     }
 }, {
     timestamps: true

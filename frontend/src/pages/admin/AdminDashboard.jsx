@@ -88,12 +88,20 @@ const AdminDashboard = () => {
   ]);
   const [students, setStudents] = useState([]);
 
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 5,
+    total: 0,
+    totalPages: 1
+  });
+
   // Fetch dashboard data
   useEffect(() => {
     fetchDashboardData();
-  }, [searchQuery, selectedFilter]);
+  }, [searchQuery, selectedFilter, pagination.page]);
 
   const fetchDashboardData = async () => {
+    console.log("Fetching dashboard data")
     try {
       setLoading(true);
       setError(null);
@@ -102,17 +110,53 @@ const AdminDashboard = () => {
       const [analyticsRes, studentsRes] = await Promise.all([
         analyticsService.getDashboardAnalytics(),
         studentService.getStudents({
-          page: 1,
-          limit: 5,
+          page: pagination.page,
+          limit: pagination.limit,
           search: searchQuery || undefined,
           status: selectedFilter !== 'All' ? selectedFilter : undefined
         })
       ]);
 
-      if (analyticsRes.data?.stats) {
-        setStats(analyticsRes.data.stats);
+      if (analyticsRes.success && analyticsRes.data) {
+        const d = analyticsRes.data;
+        setStats([
+          {
+            label: "Total Students",
+            value: d.students?.total || "0",
+            change: d.students?.change || "0%",
+            icon: Users,
+            color: "text-primary-600",
+            bg: "bg-primary-50",
+          },
+          {
+            label: "Quizzes Sent",
+            value: d.quizzes?.sent || "0",
+            change: d.quizzes?.change || "0%",
+            icon: Send,
+            color: "text-purple-600",
+            bg: "bg-purple-50",
+          },
+          {
+            label: "Pending Response",
+            value: d.responses?.pending || "0",
+            change: d.responses?.change || "0%",
+            icon: Clock,
+            color: "text-orange-600",
+            bg: "bg-orange-50",
+          },
+        ]);
       }
+
       setStudents(studentsRes.data || []);
+      if (studentsRes.pagination) {
+        setPagination(prev => ({
+          ...prev,
+          total: studentsRes.pagination.total,
+          totalPages: studentsRes.pagination.pages,
+          page: studentsRes.pagination.page // sync backend page
+        }));
+      }
+
     } catch (err) {
       const errorInfo = handleApiError(err);
       setError(errorInfo.message);
@@ -210,6 +254,25 @@ const AdminDashboard = () => {
       default:
         return "bg-slate-100 text-slate-600";
     }
+  };
+
+  // Generate pagination pages
+  const getPageNumbers = () => {
+    const pages = [];
+    const { page, totalPages } = pagination;
+
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (page <= 3) {
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (page >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
+      }
+    }
+    return pages;
   };
 
   return (
@@ -331,8 +394,8 @@ const AdminDashboard = () => {
                   </h4>
                   <span
                     className={`text-[9px] font-black px-1.5 py-0.5 rounded-md ${stat.change.startsWith("+")
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
                       }`}>
                     {stat.change}
                   </span>
@@ -559,24 +622,27 @@ const AdminDashboard = () => {
           {/* Pagination */}
           <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-slate-500 font-medium order-2 sm:order-1">
-              Showing <span className="text-slate-900 font-bold">1-5</span> of{" "}
-              <span className="text-slate-900 font-bold">1240</span>
+              Showing <span className="text-slate-900 font-bold">
+                {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} - {Math.min(pagination.page * pagination.limit, pagination.total)}
+              </span> of{" "}
+              <span className="text-slate-900 font-bold">{pagination.total}</span>
             </p>
             <div className="flex items-center gap-1.5 order-1 sm:order-2">
               <button
-                onClick={() => console.log("Prev page")}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 disabled:opacity-50">
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+                disabled={pagination.page === 1}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <div className="flex items-center gap-1">
-                {[1, 2, 3, "...", 248].map((page, i) => (
+                {getPageNumbers().map((page, i) => (
                   <button
                     key={i}
                     onClick={() =>
                       typeof page === "number" &&
-                      console.log(`Go to page ${page}`)
+                      setPagination(prev => ({ ...prev, page: page }))
                     }
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${page === 1
+                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${page === pagination.page
                       ? "bg-primary-600 text-white shadow-sm"
                       : "text-slate-500 hover:bg-slate-50"
                       } ${typeof page !== "number"
@@ -588,8 +654,9 @@ const AdminDashboard = () => {
                 ))}
               </div>
               <button
-                onClick={() => console.log("Next page")}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(pagination.totalPages, prev.page + 1) }))}
+                disabled={pagination.page === pagination.totalPages}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>

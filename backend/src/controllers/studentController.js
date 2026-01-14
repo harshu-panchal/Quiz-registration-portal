@@ -28,6 +28,18 @@ const getStudents = asyncHandler(async (req, res) => {
         query.class = { $in: classes };
     }
 
+    if (req.query.state && req.query.state !== 'All') {
+        query.state = req.query.state;
+    }
+
+    if (req.query.city && req.query.city !== 'All') {
+        query.city = req.query.city;
+    }
+
+    if (req.query.gender && req.query.gender !== 'All') {
+        query.gender = req.query.gender;
+    }
+
     if (search) {
         query.$or = [
             { name: { $regex: search, $options: 'i' } },

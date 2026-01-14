@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "./Modal";
-import { Filter, X, Check, RotateCcw, AlertCircle } from "lucide-react";
+import { RotateCcw, MapPin, User, GraduationCap } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { indianStatesCities } from "../data/indianStatesCities";
 
 const filterSchema = z.object({
-  status: z.string(),
-  class: z.string(),
-  school: z.string(),
-  dateRange: z.string(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  gender: z.string().optional(),
+  class: z.string().optional(),
 });
 
 const FilterOptionsModal = ({
@@ -17,7 +18,6 @@ const FilterOptionsModal = ({
   onClose,
   onApply,
   currentFilters = {},
-  filterOptions = {}, // Add filterOptions prop
 }) => {
   const {
     register,
@@ -25,45 +25,46 @@ const FilterOptionsModal = ({
     setValue,
     watch,
     reset,
-    formState: { errors },
   } = useForm({
     resolver: zodResolver(filterSchema),
     defaultValues: {
-      status: currentFilters.status || "All",
-      class: currentFilters.class || "All",
-      school: currentFilters.school || "All",
-      dateRange: currentFilters.dateRange || "All Time",
+      state: currentFilters.state || "",
+      city: currentFilters.city || "",
+      gender: currentFilters.gender || "",
+      class: currentFilters.class || "",
     },
   });
 
-  const filters = watch();
+  const selectedState = watch("state");
 
-  const statusOptions = [
-    "All",
-    "Active",
-    "Pending",
-    "Sent",
-    "Completed",
-    "Inactive",
-  ];
-
-  // Use dynamic options if available, relative to "All"
-  const classOptions = ["All", ...(filterOptions.classes || ["10th Grade", "11th Grade", "12th Grade"])];
-  const schoolOptions = ["All", ...(filterOptions.schools || ["Evergreen High School", "Oakwood Academy", "Riverside International", "Maplewood Prep", "Summit High"])];
-  const dateOptions = ["All Time", "Today", "Last 7 Days", "Last 30 Days"];
+  useEffect(() => {
+    reset({
+      state: currentFilters.state || "",
+      city: currentFilters.city || "",
+      gender: currentFilters.gender || "",
+      class: currentFilters.class || "",
+    });
+  }, [currentFilters, reset]);
 
   const handleReset = () => {
     reset({
-      status: "All",
-      class: "All",
-      school: "All",
-      dateRange: "All Time",
+      state: "",
+      city: "",
+      gender: "",
+      class: "",
     });
   };
 
   const handleApply = (data) => {
     onApply(data);
+    onClose();
   };
+
+  const classOptions = [
+    "1st Grade", "2nd Grade", "3rd Grade", "4th Grade", "5th Grade",
+    "6th Grade", "7th Grade", "8th Grade", "9th Grade", "10th Grade",
+    "11th Grade", "12th Grade", "Other"
+  ];
 
   return (
     <Modal
@@ -72,51 +73,85 @@ const FilterOptionsModal = ({
       title="Filter Students"
       maxWidth="max-w-md">
       <div className="space-y-6">
-        {/* Status Filter */}
+
+        {/* State Filter */}
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-            Student Status
+            State
           </label>
-          <div className="flex flex-wrap gap-2">
-            {statusOptions.map((status) => (
-              <button
-                key={status}
-                type="button"
-                onClick={() =>
-                  setValue("status", status, { shouldValidate: true })
-                }
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.status === status
-                  ? "bg-primary-600 text-white shadow-sm"
-                  : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-                  }`}>
-                {status}
-              </button>
-            ))}
+          <div className="relative group">
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+            <select
+              className="modern-input !pl-12 !py-2.5 bg-white w-full"
+              {...register("state", {
+                onChange: (e) => setValue("city", "")
+              })}
+            >
+              <option value="">All States</option>
+              {Object.keys(indianStatesCities).sort().map((state) => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
           </div>
         </div>
 
-        {/* School and Class filters moved to StudentFilterBar */}
-
-        {/* Date Range */}
+        {/* City Filter */}
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-            Date Joined
+            City
           </label>
-          <div className="grid grid-cols-2 gap-2">
-            {dateOptions.map((date) => (
-              <button
-                key={date}
-                type="button"
-                onClick={() =>
-                  setValue("dateRange", date, { shouldValidate: true })
-                }
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${filters.dateRange === date
-                  ? "bg-primary-50 border-primary-200 text-primary-600"
-                  : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
-                  }`}>
-                {date}
-              </button>
-            ))}
+          <div className="relative group">
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+            <select
+              className="modern-input !pl-12 !py-2.5 bg-white w-full disabled:bg-slate-50 disabled:text-slate-400"
+              disabled={!selectedState}
+              {...register("city")}
+            >
+              <option value="">{selectedState ? "All Cities" : "Select State First"}</option>
+              {selectedState && indianStatesCities[selectedState]?.sort().map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* Gender Filter */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+              Gender
+            </label>
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+              <select
+                className="modern-input !pl-12 !py-2.5 bg-white w-full"
+                {...register("gender")}
+              >
+                <option value="">All</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Class Filter */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+              Class / Grade
+            </label>
+            <div className="relative group">
+              <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+              <select
+                className="modern-input !pl-12 !py-2.5 bg-white w-full"
+                {...register("class")}
+              >
+                <option value="">All Classes</option>
+                {classOptions.map((cls) => (
+                  <option key={cls} value={cls}>{cls}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

@@ -28,6 +28,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 import { settingsService } from "../../services/settingsService";
+import { paymentService, loadRazorpay } from "../../services/paymentService";
 import { handleApiError } from "../../utils/errorHandler";
 
 const registerSchema = z.object({
@@ -131,33 +132,79 @@ const RegisterPage = () => {
       setLoading(true);
       setApiError('');
 
-      const response = await authService.register({
-        name: data.fullName,
-        email: data.email,
-        password: data.password,
-        phone: data.phone,
-        age: data.age,
-        gender: data.gender,
-        school: data.school,
-        class: data.studentClass,
-        city: data.city,
-        state: data.state,
-      });
+      // 1. Load Razorpay Script
+      const isLoaded = await loadRazorpay();
+      if (!isLoaded) {
+        throw new Error('Razorpay SDK failed to load. Are you online?');
+      }
 
-      login({
-        _id: response.data._id,
-        name: response.data.name,
-        email: response.data.email,
-        role: response.data.role,
-        avatar: response.data.avatar,
-        token: response.data.token
-      });
+      // 2. Create Order
+      const orderData = await paymentService.createOrder(registrationFee);
 
-      navigate("/dashboard");
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.order.amount,
+        currency: orderData.order.currency,
+        name: "EduPortal Registration",
+        description: "Student Registration Fee",
+        order_id: orderData.order.id,
+        handler: async function (response) {
+          try {
+            // 3. Register User with Payment Details
+            const registerResponse = await authService.register({
+              name: data.fullName,
+              email: data.email,
+              password: data.password,
+              phone: data.phone,
+              age: data.age,
+              gender: data.gender,
+              school: data.school,
+              class: data.studentClass,
+              city: data.city,
+              state: data.state,
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature
+            });
+
+            login({
+              _id: registerResponse.data._id,
+              name: registerResponse.data.name,
+              email: registerResponse.data.email,
+              role: registerResponse.data.role,
+              avatar: registerResponse.data.avatar,
+              token: registerResponse.data.token
+            });
+
+            navigate("/dashboard");
+          } catch (err) {
+            const errorInfo = handleApiError(err);
+            setApiError(errorInfo.message);
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: data.fullName,
+          email: data.email,
+          contact: data.phone,
+        },
+        theme: {
+          color: "#0070D1",
+        },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+      // loading state will remain true until payment succeeds or modal dismissed
+
     } catch (err) {
       const errorInfo = handleApiError(err);
       setApiError(errorInfo.message);
-    } finally {
       setLoading(false);
     }
   };

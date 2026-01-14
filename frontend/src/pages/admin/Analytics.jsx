@@ -114,7 +114,7 @@ const Analytics = () => {
       value: "0",
       trend: "0%",
       isPositive: true,
-      icon: Users,
+      icon: "Users",
       bgColor: "bg-blue-50",
       textColor: "text-blue-600",
     },
@@ -123,7 +123,7 @@ const Analytics = () => {
       value: "0%",
       trend: "0%",
       isPositive: true,
-      icon: Award,
+      icon: "Award",
       bgColor: "bg-green-50",
       textColor: "text-green-600",
     },
@@ -132,15 +132,24 @@ const Analytics = () => {
       value: "0/100",
       trend: "0%",
       isPositive: false,
-      icon: Activity,
+      icon: "Activity",
       bgColor: "bg-orange-50",
       textColor: "text-orange-600",
     },
   ];
 
+  const iconMap = {
+    Users: Users,
+    Award: Award,
+    Activity: Activity,
+    BookOpen: BookOpen,
+    TrendingUp: TrendingUp
+  };
+
   const monthlyGrowthData = analyticsData?.monthlyGrowth || [];
   const weeklyGrowthData = analyticsData?.weeklyGrowth || [];
   const performanceData = analyticsData?.performance || [];
+  const recentActivity = analyticsData?.recentActivity || [];
 
   return (
     <DashboardLayout role="admin">
@@ -227,37 +236,40 @@ const Analytics = () => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, idx) => (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              key={stat.label}
-              className="glass-card p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group">
-              <div className="flex items-center justify-between mb-4">
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.bgColor} ${stat.textColor} group-hover:scale-110 transition-transform`}>
-                  <stat.icon className="w-5 h-5" />
+          {stats.map((stat, idx) => {
+            const Icon = iconMap[stat.icon] || Users;
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                key={stat.label}
+                className="glass-card p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group">
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.bgColor} ${stat.textColor} group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div
+                    className={`flex items-center gap-1 text-[10px] font-black ${stat.isPositive ? "text-green-600" : "text-red-600"
+                      }`}>
+                    {stat.isPositive ? (
+                      <ArrowUpRight className="w-3 h-3" />
+                    ) : (
+                      <ArrowDownRight className="w-3 h-3" />
+                    )}
+                    {stat.trend}
+                  </div>
                 </div>
-                <div
-                  className={`flex items-center gap-1 text-[10px] font-black ${stat.isPositive ? "text-green-600" : "text-red-600"
-                    }`}>
-                  {stat.isPositive ? (
-                    <ArrowUpRight className="w-3 h-3" />
-                  ) : (
-                    <ArrowDownRight className="w-3 h-3" />
-                  )}
-                  {stat.trend}
-                </div>
-              </div>
-              <h4 className="text-2xl font-black text-slate-900">
-                {stat.value}
-              </h4>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
-                {stat.label}
-              </p>
-            </motion.div>
-          ))}
+                <h4 className="text-2xl font-black text-slate-900">
+                  {stat.value}
+                </h4>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
+                  {stat.label}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Charts Section */}
@@ -287,7 +299,7 @@ const Analytics = () => {
               </div>
             </div>
 
-            <div className="flex-1 min-h-[300px] mt-4">
+            <div className="h-[300px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={
@@ -353,7 +365,7 @@ const Analytics = () => {
               Score distribution across all modules.
             </p>
 
-            <div className="flex-1 min-h-[250px] relative">
+            <div className="h-[250px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -441,74 +453,51 @@ const Analytics = () => {
             </button>
           </div>
           <div className="p-2">
-            {[
-              {
-                action: "New student registration",
-                target: "Sarah Connor",
-                time: "2 mins ago",
-                icon: Users,
-                bgColor: "bg-blue-50",
-                textColor: "text-blue-600",
-              },
-              {
-                action: "Quiz completed",
-                target: "Entrance Test - Grade 10",
-                time: "15 mins ago",
-                icon: Award,
-                bgColor: "bg-green-50",
-                textColor: "text-green-600",
-              },
-              {
-                action: "New quiz published",
-                target: "Scholarship Phase 2",
-                time: "1 hour ago",
-                icon: BookOpen,
-                bgColor: "bg-purple-50",
-                textColor: "text-purple-600",
-              },
-              {
-                action: "System update",
-                target: "v2.4.0 Patch",
-                time: "4 hours ago",
-                icon: Activity,
-                bgColor: "bg-orange-50",
-                textColor: "text-orange-600",
-              },
-            ].map((log, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-all group">
-                <div className="flex items-center gap-4">
+            {recentActivity.length === 0 ? (
+              <div className="p-4 text-center text-slate-500 text-sm">No recent activity found.</div>
+            ) : (
+              recentActivity.map((log, idx) => {
+                const Icon = Users; // Default icon for now or map based on log type
+                return (
                   <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center ${log.bgColor} ${log.textColor}`}>
-                    <log.icon className="w-4.5 h-4.5" />
+                    key={idx}
+                    className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600`}>
+                        <Icon className="w-4.5 h-4.5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-slate-900">
+                          {log.action}
+                        </p>
+                        <p className="text-[10px] text-slate-500 font-medium">
+                          Target:{" "}
+                          <span className="text-slate-700 font-bold">
+                            {log.target}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right hidden sm:block">
+                        <p className="text-xs font-bold text-slate-900">
+                          {new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        <p className="text-[9px] text-slate-400">
+                          {new Date(log.time).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleViewLog(log)}
+                        className="p-2 rounded-lg hover:bg-white text-slate-400 hover:text-primary-600 transition-all opacity-0 group-hover:opacity-100">
+                        <ArrowUpRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-black text-slate-900">
-                      {log.action}
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      Target:{" "}
-                      <span className="text-slate-700 font-bold">
-                        {log.target}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right hidden sm:block">
-                    <p className="text-xs font-bold text-slate-900">
-                      {log.time}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleViewLog(log)}
-                    className="p-2 rounded-lg hover:bg-white text-slate-400 hover:text-primary-600 transition-all opacity-0 group-hover:opacity-100">
-                    <ArrowUpRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                )
+              })
+            )}
           </div>
         </div>
       </div>

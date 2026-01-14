@@ -38,6 +38,41 @@ export const authService = {
     },
 
     /**
+     * Update user profile
+     * @param {Object} userData - User profile data
+     * @returns {Promise} Response with updated user data
+     */
+    updateProfile: async (userData) => {
+        const response = await api.put('/auth/profile', userData);
+        return response.data;
+    },
+
+    /**
+     * Update user password
+     * @param {string} currentPassword - Current password
+     * @param {string} newPassword - New password
+     * @returns {Promise} Response with success message
+     */
+    updatePassword: async (currentPassword, newPassword) => {
+        const response = await api.put('/auth/updatepassword', { currentPassword, newPassword });
+        return response.data;
+    },
+
+    /**
+     * Upload profile photo
+     * @param {FormData} formData
+     * @returns {Promise} Response with updated avatar URL
+     */
+    uploadProfilePhoto: async (formData) => {
+        const response = await api.post('/auth/profile/photo', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    /**
      * Get current authenticated user
      * @returns {Promise} Current user data
      */

@@ -3,6 +3,7 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import {
   Users,
   Search,
+  Filter,
   Download,
   Plus,
   MoreVertical,
@@ -19,8 +20,8 @@ import AddStudentModal from "../../components/AddStudentModal";
 import StudentDetailsModal from "../../components/StudentDetailsModal";
 import QuickActionsModal from "../../components/QuickActionsModal";
 import ContactStudentModal from "../../components/ContactStudentModal";
-// import FilterOptionsModal from "../../components/FilterOptionsModal"; // REPLACED
-import StudentFilterBar from "../../components/StudentFilterBar"; // NEW
+import FilterOptionsModal from "../../components/FilterOptionsModal";
+// import StudentFilterBar from "../../components/StudentFilterBar"; // REPLACED
 import StatusModal from "../../components/StatusModal";
 import ExportOptionsModal from "../../components/ExportOptionsModal";
 import { studentService } from "../../services/studentService";
@@ -30,12 +31,11 @@ const StudentList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All"); // Status Tabs
 
-  // Refactored activeFilters to support arrays for multi-select
   const [activeFilters, setActiveFilters] = useState({
-    status: [], // Now an array, though Tabs control it mostly
-    class: [],
-    school: [],
-    dateRange: "All Time",
+    state: "",
+    city: "",
+    gender: "",
+    class: "",
   });
 
   // API state
@@ -74,12 +74,13 @@ const StudentList = () => {
         page: pagination.page,
         limit: pagination.limit,
         search: searchQuery || undefined,
-        // Status priority: Tab (selectedFilter) -> then nothing (multiselect not used for status yet)
         status: selectedFilter !== 'All' ? selectedFilter : undefined,
 
-        // Join arrays with commas for backend
-        school: activeFilters.school.length > 0 ? activeFilters.school.join(',') : undefined,
-        class: activeFilters.class.length > 0 ? activeFilters.class.join(',') : undefined,
+        // New filters
+        state: activeFilters.state || undefined,
+        city: activeFilters.city || undefined,
+        gender: activeFilters.gender || undefined,
+        class: activeFilters.class || undefined,
       };
 
       const response = await studentService.getStudents(params);
@@ -99,21 +100,9 @@ const StudentList = () => {
   };
 
   // Filter Handlers
-  const handleFilterChange = (key, value) => {
-    setActiveFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1
-  };
-
-  const handleClearFilters = () => {
-    setActiveFilters({
-      status: [],
-      class: [],
-      school: [],
-      dateRange: "All Time",
-    });
+  const handleFilterApply = (newFilters) => {
+    setActiveFilters(newFilters);
+    setPagination(prev => ({ ...prev, page: 1 }));
   };
 
   const filteredStudents = students;
@@ -125,7 +114,7 @@ const StudentList = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
-  // const [isFilterOpen, setIsFilterOpen] = useState(false); // REMOVED
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [statusModal, setStatusModal] = useState({
     isOpen: false, type: "info", title: "", message: "", showCancel: false, onConfirm: null,
   });
@@ -227,6 +216,12 @@ const StudentList = () => {
         <ContactStudentModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} student={selectedStudent} />
 
         {/* Deprecated FilterOptionsModal removed from render */}
+        <FilterOptionsModal
+          isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
+          onApply={handleFilterApply}
+          currentFilters={activeFilters}
+        />
 
         <StatusModal {...statusModal} onClose={() => setStatusModal({ ...statusModal, isOpen: false })} />
         <ExportOptionsModal isOpen={isExportOpen} onClose={() => setIsExportOpen(false)} title="Export Student Directory" />
@@ -253,8 +248,8 @@ const StudentList = () => {
                     key={filter}
                     onClick={() => setSelectedFilter(filter)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${selectedFilter === filter
-                        ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
-                        : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                      ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
+                      : "bg-slate-50 text-slate-500 hover:bg-slate-100"
                       }`}
                   >
                     {filter}
@@ -263,13 +258,33 @@ const StudentList = () => {
               </div>
             </div>
 
-            {/* Integrated Filter Bar */}
-            <StudentFilterBar
-              filterOptions={filterOptions}
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
-            />
+            {/* Filter Toggle and Modal */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className={`btn-modern-outline !py-2.5 flex items-center gap-2 ${Object.values(activeFilters).some(v => v) ? "bg-primary-50 border-primary-200 text-primary-700" : ""
+                  }`}>
+                <Filter className="w-4 h-4" />
+                Filters
+                {Object.values(activeFilters).filter(v => v).length > 0 && (
+                  <span className="bg-primary-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center">
+                    {Object.values(activeFilters).filter(v => v).length}
+                  </span>
+                )}
+              </button>
+
+              {Object.values(activeFilters).some(v => v) && (
+                <button
+                  onClick={() => setActiveFilters({ state: "", city: "", gender: "", class: "" })}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 bg-red-50 p-2 rounded-lg"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Clear Filter
+                </button>
+              )}
+            </div>
+
+
           </div>
 
           {/* Error Display */}

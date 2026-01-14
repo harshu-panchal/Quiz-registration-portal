@@ -1,59 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import StatusModal from "../../components/StatusModal";
+import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
 import {
   User,
   Shield,
-  Bell,
   Globe,
   Database,
   Lock,
   Mail,
   Camera,
-  BookOpen,
   CheckCircle2,
-  Trash2,
-  AlertTriangle,
-  ChevronRight,
-  LogOut,
-
   AlertCircle,
   IndianRupee,
+  LogOut,
+  ChevronRight,
+  AlertTriangle,
+  Trash2,
+  X,
+  BookOpen
 } from "lucide-react";
 import { settingsService } from "../../services/settingsService";
 
+// ... schemas remain same ...
 const profileSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, "Full name must be at least 2 characters")
-    .max(50),
+  fullName: z.string().min(2, "Full name must be at least 2 characters").max(50),
   email: z.string().email("Invalid email address"),
   bio: z.string().max(500, "Bio is too long").optional(),
 });
 
 const platformSchema = z.object({
-  platformName: z
-    .string()
-    .min(3, "Platform name must be at least 3 characters")
-    .max(100),
-  registrationFee: z.coerce
-    .number()
-    .min(0, "Fee cannot be negative")
-    .max(10000, "Fee is too high"),
+  platformName: z.string().min(3, "Platform name must be at least 3 characters").max(100),
+  registrationFee: z.coerce.number().min(0, "Fee cannot be negative").max(10000, "Fee is too high"),
+  language: z.string().optional(),
+  theme: z.string().optional(),
+});
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 const Settings = () => {
+  const { user, login } = useAuth();
+  const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("Profile");
-  const [notifications, setNotifications] = useState({
-    emailAlerts: true,
-    studentActivity: true,
-    quizResults: false,
-    systemUpdates: true,
-  });
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const [platformSettings, setPlatformSettings] = useState({
     platformName: "AppZeto Quiz Platform",
@@ -76,11 +77,12 @@ const Settings = () => {
     register: registerProfile,
     handleSubmit: handleSubmitProfile,
     formState: { errors: profileErrors },
+    reset: resetProfile,
   } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      fullName: "Admin User",
-      email: "admin@example.com",
+      fullName: "",
+      email: "",
       bio: "",
     },
   });
@@ -99,8 +101,18 @@ const Settings = () => {
     },
   });
 
+  // Password Form
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    formState: { errors: passwordErrors },
+    reset: resetPassword
+  } = useForm({
+    resolver: zodResolver(passwordSchema)
+  });
+
   // Fetch settings on mount
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchSettings = async () => {
       try {
         const settings = await settingsService.getSettings();
@@ -110,7 +122,8 @@ const Settings = () => {
           ...prev,
           platformName: settings.platformName,
           maintenanceMode: settings.maintenanceMode,
-          // Assuming language/theme are local or not yet in backend
+          language: settings.language || "English (US)",
+          theme: settings.theme || "Light",
         }));
       } catch (error) {
         console.error("Failed to fetch settings:", error);
@@ -119,20 +132,33 @@ const Settings = () => {
     fetchSettings();
   }, [setPlatformValue]);
 
+  // Update profile form when user user data is available
+  useEffect(() => {
+    if (user) {
+      resetProfile({
+        fullName: user.name || "",
+        email: user.email || "",
+        bio: user.bio || "",
+      });
+    }
+  }, [user, resetProfile]);
+
   const tabs = [
     { id: "Profile", icon: User },
     { id: "Security", icon: Shield },
-    { id: "Notifications", icon: Bell },
     { id: "Platform", icon: Globe },
     { id: "Data", icon: Database },
   ];
+
 
   const handleSavePlatform = async (data) => {
     try {
       await settingsService.updateSettings({
         platformName: data.platformName,
         registrationFee: data.registrationFee,
-        maintenanceMode: platformSettings.maintenanceMode
+        maintenanceMode: platformSettings.maintenanceMode,
+        language: platformSettings.language,
+        theme: platformSettings.theme,
       });
 
       setPlatformSettings((prev) => ({ ...prev, ...data }));
@@ -166,8 +192,7 @@ const Settings = () => {
       isOpen: true,
       type: "confirm",
       title: "Clear System Cache",
-      message:
-        "Are you sure you want to clear the system cache? This will sign out all active sessions.",
+      message: "Are you sure you want to clear the system cache? This will sign out all active sessions.",
       showCancel: true,
       onConfirm: () => {
         setStatusModal({
@@ -188,45 +213,78 @@ const Settings = () => {
       message: "Are you sure you want to sign out of your admin account?",
       showCancel: true,
       confirmText: "Sign Out",
-      onConfirm: () => console.log("Signing out..."),
+      onConfirm: () => {
+        // In real app, call logout service
+        console.log("Signing out...");
+        // You might want to actually logout here
+        // window.location.href = '/login'; 
+      },
     });
   };
 
-  const onProfileSubmit = (data) => {
-    console.log("Saving profile:", data);
-    setStatusModal({
-      isOpen: true,
-      type: "success",
-      title: "Settings Saved",
-      message: "Your profile information has been updated successfully.",
-      showCancel: false,
-    });
+  const onProfileSubmit = async (data) => {
+    try {
+      const response = await authService.updateProfile({
+        name: data.fullName,
+        email: data.email,
+        bio: data.bio
+      });
+
+      if (response.success) {
+        login(response.data); // Update context
+        setStatusModal({
+          isOpen: true,
+          type: "success",
+          title: "Settings Saved",
+          message: "Your profile information has been updated successfully.",
+          showCancel: false,
+        });
+      }
+    } catch (err) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Update Failed",
+        message: err.response?.data?.message || "Failed to update profile",
+      });
+    }
   };
 
   const handleCancel = () => {
-    console.log("Edit cancelled");
+    if (user) {
+      resetProfile({
+        fullName: user.name || "",
+        email: user.email || "",
+        bio: user.bio || "",
+      });
+    }
+  };
+
+  const onPasswordSubmit = async (data) => {
+    try {
+      await authService.updatePassword(data.currentPassword, data.newPassword);
+      setIsPasswordModalOpen(false);
+      resetPassword();
+      setStatusModal({
+        isOpen: true,
+        type: "success",
+        title: "Password Updated",
+        message: "Your password has been changed successfully.",
+      });
+    } catch (err) {
+      // Show error in modal or toast? We don't have toast validation in modal easily.
+      // We can render error in form manually or use setStatusModal error
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Password Change Failed",
+        message: err.response?.data?.message || "Failed to change password",
+      });
+    }
   };
 
   const handleChangePassword = () => {
-    setStatusModal({
-      isOpen: true,
-      type: "info",
-      title: "Security Update",
-      message:
-        "The password change interface is being initialized. You will receive an email to confirm this action.",
-      showCancel: false,
-    });
-  };
-
-  const handleEnable2FA = () => {
-    setStatusModal({
-      isOpen: true,
-      type: "info",
-      title: "2FA Setup",
-      message:
-        "Two-factor authentication setup is coming soon. We will notify you when it's ready.",
-      showCancel: false,
-    });
+    setIsPasswordModalOpen(true);
   };
 
   const handleDeleteAccount = () => {
@@ -234,25 +292,53 @@ const Settings = () => {
       isOpen: true,
       type: "error",
       title: "Critical Action",
-      message:
-        "Are you sure you want to delete your admin account? This action is permanent and cannot be reversed.",
+      message: "Are you sure you want to delete your admin account? This action is permanent and cannot be reversed.",
       showCancel: true,
       confirmText: "Delete Permanently",
       onConfirm: () => {
         console.log("Account deleted");
-        setStatusModal({
-          isOpen: true,
-          type: "success",
-          title: "Account Deleted",
-          message: "Your account deletion request has been processed.",
-          showCancel: false,
-        });
       },
     });
   };
 
   const handleCameraClick = () => {
-    console.log("Opening file picker for profile picture...");
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Create FormData
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    try {
+      const response = await authService.uploadProfilePhoto(formData);
+
+      if (response && response.success) {
+        // Update local user context with new avatar path
+        // user object in context usually has the user data.
+        // response.data is the avatar path string string based on my controller logic.
+        const updatedUser = { ...user, avatar: response.data };
+        login(updatedUser); // Update AuthContext
+
+        setStatusModal({
+          isOpen: true,
+          type: "success",
+          title: "Photo Updated",
+          message: "Profile picture has been updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Upload Failed",
+        message: error.response?.data?.message || "Failed to upload profile photo",
+      });
+    }
   };
 
   return (
@@ -312,7 +398,7 @@ const Settings = () => {
                     <div className="flex items-center gap-6 mb-8">
                       <div className="relative group">
                         <img
-                          src="https://i.pravatar.cc/150?u=admin"
+                          src={user?.avatar || "https://i.pravatar.cc/150?u=admin"}
                           alt="Admin"
                           className="w-24 h-24 rounded-3xl object-cover ring-4 ring-slate-50 group-hover:ring-primary-100 transition-all shadow-md"
                         />
@@ -321,13 +407,20 @@ const Settings = () => {
                           className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-primary-600 text-white shadow-lg hover:scale-110 transition-transform">
                           <Camera className="w-4 h-4" />
                         </button>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
                       </div>
                       <div className="space-y-1">
                         <h4 className="text-xl font-black text-slate-900">
-                          Admin User
+                          {user?.name || "Admin User"}
                         </h4>
                         <p className="text-xs text-slate-500 font-medium">
-                          Administrator • Super User
+                          {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Administrator"}
                         </p>
                         <div className="flex items-center gap-1.5 text-green-600 mt-2">
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -439,90 +532,7 @@ const Settings = () => {
                 </motion.div>
               )}
 
-              {activeTab === "Notifications" && (
-                <motion.div
-                  key="notifications"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="space-y-6">
-                  <div className="glass-card rounded-3xl p-8 border border-slate-100 shadow-sm">
-                    <h3 className="text-lg font-black text-slate-900 mb-2">
-                      Notification Preferences
-                    </h3>
-                    <p className="text-sm text-slate-500 font-medium mb-8">
-                      Choose how you want to be notified about platform
-                      activity.
-                    </p>
 
-                    <div className="space-y-4">
-                      {[
-                        {
-                          id: "emailAlerts",
-                          label: "Email Alerts",
-                          desc: "Receive important system updates via email.",
-                          icon: Mail,
-                        },
-                        {
-                          id: "studentActivity",
-                          label: "Student Activity",
-                          desc: "Get notified when new students register.",
-                          icon: User,
-                        },
-                        {
-                          id: "quizResults",
-                          label: "Quiz Submissions",
-                          desc: "Alerts for new quiz completions and results.",
-                          icon: BookOpen,
-                        },
-                        {
-                          id: "systemUpdates",
-                          label: "System Status",
-                          desc: "Notifications about maintenance and updates.",
-                          icon: Shield,
-                        },
-                      ].map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-primary-100 transition-all">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-primary-600 transition-all">
-                              <item.icon className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-black text-slate-900">
-                                {item.label}
-                              </p>
-                              <p className="text-[11px] text-slate-500 font-medium">
-                                {item.desc}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleToggleNotification(item.id)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${notifications[item.id]
-                              ? "bg-primary-600"
-                              : "bg-slate-200"
-                              }`}>
-                            <div
-                              className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${notifications[item.id] ? "left-7" : "left-1"
-                                }`}
-                            />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-8 flex justify-end">
-                      <button
-                        onClick={handleSaveNotifications}
-                        className="btn-modern-primary !py-2.5 !px-8 text-xs font-black">
-                        Save Preferences
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
 
               {activeTab === "Platform" && (
                 <motion.div
@@ -770,26 +780,7 @@ const Settings = () => {
                         <ChevronRight className="w-4.5 h-4.5 text-slate-300" />
                       </div>
 
-                      <div
-                        onClick={handleEnable2FA}
-                        className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-primary-100 transition-all cursor-pointer">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-primary-600 transition-all">
-                            <Shield className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-black text-slate-900">
-                              Two-Factor Authentication
-                            </p>
-                            <p className="text-[11px] text-slate-500 font-medium">
-                              Add an extra layer of security to your account.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest">
-                          Disabled
-                        </div>
-                      </div>
+
                     </div>
                   </div>
 
@@ -815,6 +806,70 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {/* Password Change Modal */}
+      <AnimatePresence>
+        {isPasswordModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity"
+              onClick={() => setIsPasswordModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+              <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md pointer-events-auto p-8 border border-slate-100">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-black text-slate-900">Change Password</h3>
+                  <button onClick={() => setIsPasswordModalOpen(false)} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Password</label>
+                    <input
+                      type="password"
+                      {...registerPassword("currentPassword")}
+                      className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${passwordErrors.currentPassword ? "!border-red-200 !bg-red-50/50" : ""}`}
+                    />
+                    {passwordErrors.currentPassword && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{passwordErrors.currentPassword.message}</p>}
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">New Password</label>
+                    <input
+                      type="password"
+                      {...registerPassword("newPassword")}
+                      className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${passwordErrors.newPassword ? "!border-red-200 !bg-red-50/50" : ""}`}
+                    />
+                    {passwordErrors.newPassword && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{passwordErrors.newPassword.message}</p>}
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Confirm Password</label>
+                    <input
+                      type="password"
+                      {...registerPassword("confirmPassword")}
+                      className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${passwordErrors.confirmPassword ? "!border-red-200 !bg-red-50/50" : ""}`}
+                    />
+                    {passwordErrors.confirmPassword && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{passwordErrors.confirmPassword.message}</p>}
+                  </div>
+
+                  <button type="submit" className="w-full btn-modern-primary !py-3 mt-4 text-sm font-black">
+                    Update Password
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <StatusModal
         {...statusModal}
         onClose={() => setStatusModal({ ...statusModal, isOpen: false })}

@@ -60,6 +60,23 @@ const studentSchema = new mongoose.Schema(
             enum: ['Active', 'Inactive', 'Pending'],
             default: 'Pending',
         },
+        paymentId: {
+            type: String,
+        },
+        orderId: {
+            type: String,
+        },
+        paymentSignature: {
+            type: String,
+        },
+        paymentStatus: {
+            type: String,
+            enum: ['Pending', 'Paid', 'Failed'],
+            default: 'Pending',
+        },
+        paymentDate: {
+            type: Date,
+        },
         joinDate: {
             type: Date,
             default: Date.now,

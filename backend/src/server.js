@@ -55,6 +55,8 @@ app.use('/api/students', studentRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/payment', require('./routes/paymentRoutes'));
+app.use('/api/transactions', require('./routes/transactionRoutes'));
 
 // Health check route
 app.get('/api/health', (req, res) => {
