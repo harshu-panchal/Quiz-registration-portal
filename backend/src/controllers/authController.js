@@ -6,7 +6,7 @@ const { generateToken } = require('../utils/jwt');
 // @route   POST /api/auth/register
 // @access  Public
 const register = asyncHandler(async (req, res) => {
-    const { name, email, password, role, phone, age, school, class: studentClass, city, state } = req.body;
+    const { name, email, password, role, phone, age, gender, school, class: studentClass, city, state } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -38,6 +38,7 @@ const register = asyncHandler(async (req, res) => {
                 city: city || 'Not specified',
                 state: state || 'Not specified',
                 age: age || 0,
+                gender: gender || 'Other',
                 status: 'Active',
             });
         }

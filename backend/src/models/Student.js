@@ -50,6 +50,11 @@ const studentSchema = new mongoose.Schema(
             min: 5,
             max: 100,
         },
+        gender: {
+            type: String,
+            enum: ['Male', 'Female', 'Other'],
+            required: [true, 'Please select a gender'],
+        },
         status: {
             type: String,
             enum: ['Active', 'Inactive', 'Pending'],

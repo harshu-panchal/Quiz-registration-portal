@@ -67,7 +67,7 @@ const LoginPage = () => {
 
       navigate("/dashboard");
     } catch (err) {
-      const errorInfo = handleApiError(err);
+      const errorInfo = handleApiError(err, false);
       setApiError(errorInfo.message);
     } finally {
       setLoading(false);

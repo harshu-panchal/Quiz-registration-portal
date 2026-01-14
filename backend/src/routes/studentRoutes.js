@@ -9,6 +9,7 @@ const {
     bulkActivateStudents,
     exportStudents,
     getStudentStats,
+    getStudentFilterOptions,
 } = require('../controllers/studentController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -21,6 +22,8 @@ router.use(admin);
 router.route('/')
     .get(getStudents)
     .post(createStudent);
+
+router.get('/filters', getStudentFilterOptions);
 
 router.get('/export', exportStudents);
 

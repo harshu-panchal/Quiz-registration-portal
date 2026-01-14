@@ -3,13 +3,13 @@
  * @param {Error} error - Error object from axios
  * @returns {Object} Formatted error with message and status
  */
-export const handleApiError = (error) => {
+export const handleApiError = (error, shouldRedirect = true) => {
     if (error.response) {
         // Server responded with error status
         const message = error.response.data?.message || 'An error occurred';
         const status = error.response.status;
 
-        if (status === 401) {
+        if (status === 401 && shouldRedirect) {
             // Unauthorized - clear user data and redirect to login
             localStorage.removeItem('user');
             // Normalize path by removing trailing slash for check

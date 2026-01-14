@@ -17,6 +17,7 @@ const FilterOptionsModal = ({
   onClose,
   onApply,
   currentFilters = {},
+  filterOptions = {}, // Add filterOptions prop
 }) => {
   const {
     register,
@@ -45,15 +46,10 @@ const FilterOptionsModal = ({
     "Completed",
     "Inactive",
   ];
-  const classOptions = ["All", "10th Grade", "11th Grade", "12th Grade"];
-  const schoolOptions = [
-    "All",
-    "Evergreen High School",
-    "Oakwood Academy",
-    "Riverside International",
-    "Maplewood Prep",
-    "Summit High",
-  ];
+
+  // Use dynamic options if available, relative to "All"
+  const classOptions = ["All", ...(filterOptions.classes || ["10th Grade", "11th Grade", "12th Grade"])];
+  const schoolOptions = ["All", ...(filterOptions.schools || ["Evergreen High School", "Oakwood Academy", "Riverside International", "Maplewood Prep", "Summit High"])];
   const dateOptions = ["All Time", "Today", "Last 7 Days", "Last 30 Days"];
 
   const handleReset = () => {
@@ -89,48 +85,17 @@ const FilterOptionsModal = ({
                 onClick={() =>
                   setValue("status", status, { shouldValidate: true })
                 }
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  filters.status === status
-                    ? "bg-primary-600 text-white shadow-sm"
-                    : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-                }`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filters.status === status
+                  ? "bg-primary-600 text-white shadow-sm"
+                  : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                  }`}>
                 {status}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Class Filter */}
-        <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-            Class / Grade
-          </label>
-          <select
-            {...register("class")}
-            className="modern-input bg-slate-50 border-transparent focus:bg-white w-full text-xs font-bold">
-            {classOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* School Filter */}
-        <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-            School
-          </label>
-          <select
-            {...register("school")}
-            className="modern-input bg-slate-50 border-transparent focus:bg-white w-full text-xs font-bold">
-            {schoolOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* School and Class filters moved to StudentFilterBar */}
 
         {/* Date Range */}
         <div className="space-y-2">
@@ -145,11 +110,10 @@ const FilterOptionsModal = ({
                 onClick={() =>
                   setValue("dateRange", date, { shouldValidate: true })
                 }
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
-                  filters.dateRange === date
-                    ? "bg-primary-50 border-primary-200 text-primary-600"
-                    : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
-                }`}>
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${filters.dateRange === date
+                  ? "bg-primary-50 border-primary-200 text-primary-600"
+                  : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
+                  }`}>
                 {date}
               </button>
             ))}

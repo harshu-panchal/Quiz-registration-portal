@@ -20,8 +20,11 @@ import {
   AlertTriangle,
   ChevronRight,
   LogOut,
+
   AlertCircle,
+  IndianRupee,
 } from "lucide-react";
+import { settingsService } from "../../services/settingsService";
 
 const profileSchema = z.object({
   fullName: z
@@ -37,6 +40,10 @@ const platformSchema = z.object({
     .string()
     .min(3, "Platform name must be at least 3 characters")
     .max(100),
+  registrationFee: z.coerce
+    .number()
+    .min(0, "Fee cannot be negative")
+    .max(10000, "Fee is too high"),
 });
 
 const Settings = () => {
@@ -82,13 +89,35 @@ const Settings = () => {
   const {
     register: registerPlatform,
     handleSubmit: handleSubmitPlatform,
+    setValue: setPlatformValue,
     formState: { errors: platformErrors },
   } = useForm({
     resolver: zodResolver(platformSchema),
     defaultValues: {
       platformName: "AppZeto Quiz Platform",
+      registrationFee: 100,
     },
   });
+
+  // Fetch settings on mount
+  React.useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await settingsService.getSettings();
+        setPlatformValue("platformName", settings.platformName);
+        setPlatformValue("registrationFee", settings.registrationFee);
+        setPlatformSettings(prev => ({
+          ...prev,
+          platformName: settings.platformName,
+          maintenanceMode: settings.maintenanceMode,
+          // Assuming language/theme are local or not yet in backend
+        }));
+      } catch (error) {
+        console.error("Failed to fetch settings:", error);
+      }
+    };
+    fetchSettings();
+  }, [setPlatformValue]);
 
   const tabs = [
     { id: "Profile", icon: User },
@@ -98,27 +127,29 @@ const Settings = () => {
     { id: "Data", icon: Database },
   ];
 
-  const handleToggleNotification = (key) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const handleSavePlatform = async (data) => {
+    try {
+      await settingsService.updateSettings({
+        platformName: data.platformName,
+        registrationFee: data.registrationFee,
+        maintenanceMode: platformSettings.maintenanceMode
+      });
 
-  const handleSaveNotifications = () => {
-    setStatusModal({
-      isOpen: true,
-      type: "success",
-      title: "Settings Saved",
-      message: "Your notification preferences have been updated successfully.",
-    });
-  };
-
-  const handleSavePlatform = (data) => {
-    setPlatformSettings((prev) => ({ ...prev, ...data }));
-    setStatusModal({
-      isOpen: true,
-      type: "success",
-      title: "Platform Updated",
-      message: "Platform settings have been applied to the system.",
-    });
+      setPlatformSettings((prev) => ({ ...prev, ...data }));
+      setStatusModal({
+        isOpen: true,
+        type: "success",
+        title: "Platform Updated",
+        message: "Platform settings have been applied to the system.",
+      });
+    } catch (error) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Update Failed",
+        message: "Failed to update platform settings.",
+      });
+    }
   };
 
   const handleExportData = (type) => {
@@ -244,11 +275,10 @@ const Settings = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
-                  activeTab === tab.id
-                    ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
-                    : "text-slate-500 hover:bg-slate-100"
-                }`}>
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeTab === tab.id
+                  ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
+                  : "text-slate-500 hover:bg-slate-100"
+                  }`}>
                 <tab.icon className="w-4.5 h-4.5" />
                 {tab.id}
               </button>
@@ -316,20 +346,18 @@ const Settings = () => {
                           </label>
                           <div className="relative group">
                             <User
-                              className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                                profileErrors.fullName
-                                  ? "text-red-400"
-                                  : "text-slate-300 group-focus-within:text-primary-500"
-                              }`}
+                              className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${profileErrors.fullName
+                                ? "text-red-400"
+                                : "text-slate-300 group-focus-within:text-primary-500"
+                                }`}
                             />
                             <input
                               type="text"
                               {...registerProfile("fullName")}
-                              className={`modern-input !pl-12 !py-2.5 bg-slate-50 border-transparent focus:bg-white w-full ${
-                                profileErrors.fullName
-                                  ? "!border-red-200 !bg-red-50/50"
-                                  : ""
-                              }`}
+                              className={`modern-input !pl-12 !py-2.5 bg-slate-50 border-transparent focus:bg-white w-full ${profileErrors.fullName
+                                ? "!border-red-200 !bg-red-50/50"
+                                : ""
+                                }`}
                             />
                           </div>
                           {profileErrors.fullName && (
@@ -345,20 +373,18 @@ const Settings = () => {
                           </label>
                           <div className="relative group">
                             <Mail
-                              className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                                profileErrors.email
-                                  ? "text-red-400"
-                                  : "text-slate-300 group-focus-within:text-primary-500"
-                              }`}
+                              className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${profileErrors.email
+                                ? "text-red-400"
+                                : "text-slate-300 group-focus-within:text-primary-500"
+                                }`}
                             />
                             <input
                               type="email"
                               {...registerProfile("email")}
-                              className={`modern-input !pl-12 !py-2.5 bg-slate-50 border-transparent focus:bg-white w-full ${
-                                profileErrors.email
-                                  ? "!border-red-200 !bg-red-50/50"
-                                  : ""
-                              }`}
+                              className={`modern-input !pl-12 !py-2.5 bg-slate-50 border-transparent focus:bg-white w-full ${profileErrors.email
+                                ? "!border-red-200 !bg-red-50/50"
+                                : ""
+                                }`}
                             />
                           </div>
                           {profileErrors.email && (
@@ -390,11 +416,10 @@ const Settings = () => {
                         {...registerProfile("bio")}
                         placeholder="Tell students about yourself..."
                         rows={4}
-                        className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${
-                          profileErrors.bio
-                            ? "!border-red-200 !bg-red-50/50"
-                            : ""
-                        }`}
+                        className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${profileErrors.bio
+                          ? "!border-red-200 !bg-red-50/50"
+                          : ""
+                          }`}
                       />
                       {profileErrors.bio && (
                         <p className="text-[10px] text-red-500 font-bold flex items-center gap-1 mt-1 ml-1">
@@ -475,15 +500,13 @@ const Settings = () => {
                           </div>
                           <button
                             onClick={() => handleToggleNotification(item.id)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${
-                              notifications[item.id]
-                                ? "bg-primary-600"
-                                : "bg-slate-200"
-                            }`}>
+                            className={`w-12 h-6 rounded-full transition-all relative ${notifications[item.id]
+                              ? "bg-primary-600"
+                              : "bg-slate-200"
+                              }`}>
                             <div
-                              className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                                notifications[item.id] ? "left-7" : "left-1"
-                              }`}
+                              className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${notifications[item.id] ? "left-7" : "left-1"
+                                }`}
                             />
                           </button>
                         </div>
@@ -523,16 +546,36 @@ const Settings = () => {
                         <input
                           type="text"
                           {...registerPlatform("platformName")}
-                          className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                            platformErrors.platformName
-                              ? "!border-red-200 !bg-red-50/50"
-                              : ""
-                          }`}
+                          className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${platformErrors.platformName
+                            ? "!border-red-200 !bg-red-50/50"
+                            : ""
+                            }`}
                         />
                         {platformErrors.platformName && (
                           <p className="text-[10px] text-red-500 font-bold flex items-center gap-1 mt-1 ml-1">
                             <AlertCircle className="w-3 h-3" />
                             {platformErrors.platformName.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                          Registration Fee (₹)
+                        </label>
+                        <div className="relative group">
+                          <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
+                          <input
+                            type="number"
+                            {...registerPlatform("registrationFee")}
+                            className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${platformErrors.registrationFee ? "!border-red-200 !bg-red-50/50" : ""
+                              }`}
+                          />
+                        </div>
+                        {platformErrors.registrationFee && (
+                          <p className="text-[10px] text-red-500 font-bold flex items-center gap-1 mt-1 ml-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {platformErrors.registrationFee.message}
                           </p>
                         )}
                       </div>
@@ -600,17 +643,15 @@ const Settings = () => {
                                 !platformSettings.maintenanceMode,
                             })
                           }
-                          className={`w-12 h-6 rounded-full transition-all relative ${
-                            platformSettings.maintenanceMode
-                              ? "bg-orange-600"
-                              : "bg-slate-200"
-                          }`}>
+                          className={`w-12 h-6 rounded-full transition-all relative ${platformSettings.maintenanceMode
+                            ? "bg-orange-600"
+                            : "bg-slate-200"
+                            }`}>
                           <div
-                            className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                              platformSettings.maintenanceMode
-                                ? "left-7"
-                                : "left-1"
-                            }`}
+                            className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${platformSettings.maintenanceMode
+                              ? "left-7"
+                              : "left-1"
+                              }`}
                           />
                         </button>
                       </div>

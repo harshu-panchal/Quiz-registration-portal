@@ -14,15 +14,18 @@ const getStudents = asyncHandler(async (req, res) => {
     const query = {};
 
     if (status && status !== 'All') {
-        query.status = status;
+        const statuses = status.split(',');
+        query.status = { $in: statuses };
     }
 
     if (school && school !== 'All') {
-        query.school = school;
+        const schools = school.split(',');
+        query.school = { $in: schools };
     }
 
     if (studentClass && studentClass !== 'All') {
-        query.class = studentClass;
+        const classes = studentClass.split(',');
+        query.class = { $in: classes };
     }
 
     if (search) {
@@ -278,6 +281,24 @@ const getStudentStats = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Get filter options (schools, classes, cities)
+// @route   GET /api/students/filters
+// @access  Private/Admin
+const getStudentFilterOptions = asyncHandler(async (req, res) => {
+    const schools = await Student.distinct('school');
+    const classes = await Student.distinct('class');
+    const cities = await Student.distinct('city');
+
+    res.json({
+        success: true,
+        data: {
+            schools: schools.filter(Boolean).sort(),
+            classes: classes.filter(Boolean).sort(),
+            cities: cities.filter(Boolean).sort(),
+        },
+    });
+});
+
 module.exports = {
     getStudents,
     getStudent,
@@ -288,4 +309,5 @@ module.exports = {
     bulkActivateStudents,
     exportStudents,
     getStudentStats,
+    getStudentFilterOptions,
 };

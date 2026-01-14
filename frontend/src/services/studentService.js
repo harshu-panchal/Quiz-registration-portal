@@ -94,6 +94,11 @@ export const studentService = {
         const response = await api.get(`/students/${studentId}/stats`);
         return response.data;
     },
+    // Get dynamic filter options
+    getFilterOptions: async () => {
+        const response = await api.get('/students/filters');
+        return response.data;
+    },
 };
 
 export default studentService;
