@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { motion } from "framer-motion";
 import {
@@ -18,37 +18,56 @@ import {
   School,
   MapPin,
   Calendar,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
+import { handleApiError } from "../../utils/errorHandler";
 
 const StudentDashboard = () => {
-  const student = {
-    studentId: "REG-2026-0001",
-    name: "Alex Smith",
-    email: "alex.smith@example.com",
-    phone: "+91 98765 43210",
-    school: "Central High School",
-    studentClass: "12th Grade",
-    city: "Mumbai",
-    state: "Maharashtra",
-    age: "17",
-    regDate: "Jan 01, 2026",
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [studentData, setStudentData] = useState(null);
+
+  // Fetch student data on mount
+  useEffect(() => {
+    fetchStudentData();
+  }, []);
+
+  const fetchStudentData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Get current user details from backend
+      const response = await authService.getCurrentUser();
+      setStudentData(response.data);
+    } catch (err) {
+      const errorInfo = handleApiError(err);
+      setError(errorInfo.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use fetched data or fallback to user from context
+  const student = studentData || {
+    studentId: user?._id?.slice(-8) || "N/A",
+    name: user?.name || "Student",
+    email: user?.email || "N/A",
+    phone: "N/A",
+    school: "N/A",
+    studentClass: "N/A",
+    city: "N/A",
+    state: "N/A",
+    age: "N/A",
+    regDate: "N/A",
     paymentStatus: "PAID",
-    quizStatus: "SENT",
-    quizLink: "https://forms.google.com/xyz",
-    messages: [
-      {
-        id: 1,
-        sender: "Admin",
-        text: "Welcome to the course! Please complete your quiz by Friday.",
-        date: "2 hours ago",
-      },
-      {
-        id: 2,
-        sender: "Admin",
-        text: "Your payment has been verified.",
-        date: "1 day ago",
-      },
-    ],
+    quizStatus: "PENDING",
+    quizLink: "#",
+    messages: [],
   };
 
   const container = {
@@ -300,11 +319,10 @@ const StudentDashboard = () => {
               ].map((step, idx) => (
                 <div key={idx} className="flex items-start gap-4 relative z-10">
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm shrink-0 ${
-                      step.status === "done"
-                        ? "bg-primary-600 text-white"
-                        : "bg-white text-slate-300 border border-slate-100"
-                    }`}>
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm shrink-0 ${step.status === "done"
+                      ? "bg-primary-600 text-white"
+                      : "bg-white text-slate-300 border border-slate-100"
+                      }`}>
                     <step.icon className="w-4 h-4" />
                   </div>
                   <div className="pt-1">
@@ -331,7 +349,7 @@ const StudentDashboard = () => {
               </div>
             </div>
             <div className="space-y-4">
-              {student.messages.map((msg) => (
+              {(student.messages || []).map((msg) => (
                 <div
                   key={msg.id}
                   className="p-3.5 rounded-2xl bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-sm transition-all group">

@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import AdminLoginPage from "./pages/auth/AdminLoginPage";
 import LandingPage from "./pages/LandingPage";
 
 // Protected Route Wrapper
@@ -22,7 +23,6 @@ const ProtectedRoute = ({ children, role }) => {
 import StudentDashboard from "./pages/student/StudentDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentList from "./pages/admin/StudentList";
-import QuizManagement from "./pages/admin/QuizManagement";
 import Analytics from "./pages/admin/Analytics";
 import Settings from "./pages/admin/Settings";
 import Wallet from "./pages/admin/Wallet";
@@ -35,6 +35,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
 
           {/* Student Routes */}
           <Route
@@ -63,14 +64,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/admin/quizzes"
-            element={
-              <ProtectedRoute role="admin">
-                <QuizManagement />
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/admin/analytics"
             element={

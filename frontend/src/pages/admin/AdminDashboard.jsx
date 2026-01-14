@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import {
   Users,
@@ -15,6 +15,8 @@ import {
   Mail,
   UserCheck,
   Trash2,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddStudentModal from "../../components/AddStudentModal";
@@ -25,6 +27,9 @@ import ContactStudentModal from "../../components/ContactStudentModal";
 import FilterOptionsModal from "../../components/FilterOptionsModal";
 import StatusModal from "../../components/StatusModal";
 import ExportOptionsModal from "../../components/ExportOptionsModal";
+import { analyticsService } from "../../services/analyticsService";
+import { studentService } from "../../services/studentService";
+import { handleApiError } from "../../utils/errorHandler";
 
 const AdminDashboard = () => {
   const [selectedStudents, setSelectedStudents] = useState([]);
@@ -51,6 +56,70 @@ const AdminDashboard = () => {
     school: "All",
     dateRange: "All Time",
   });
+
+  // API state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState([
+    {
+      label: "Total Students",
+      value: "0",
+      change: "0%",
+      icon: Users,
+      color: "text-primary-600",
+      bg: "bg-primary-50",
+    },
+    {
+      label: "Quizzes Sent",
+      value: "0",
+      change: "0%",
+      icon: Send,
+      color: "text-purple-600",
+      bg: "bg-purple-50",
+    },
+    {
+      label: "Pending Response",
+      value: "0",
+      change: "0%",
+      icon: Clock,
+      color: "text-orange-600",
+      bg: "bg-orange-50",
+    },
+  ]);
+  const [students, setStudents] = useState([]);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    fetchDashboardData();
+  }, [searchQuery, selectedFilter]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch analytics and students in parallel
+      const [analyticsRes, studentsRes] = await Promise.all([
+        analyticsService.getDashboardAnalytics(),
+        studentService.getStudents({
+          page: 1,
+          limit: 5,
+          search: searchQuery || undefined,
+          status: selectedFilter !== 'All' ? selectedFilter : undefined
+        })
+      ]);
+
+      if (analyticsRes.data?.stats) {
+        setStats(analyticsRes.data.stats);
+      }
+      setStudents(studentsRes.data || []);
+    } catch (err) {
+      const errorInfo = handleApiError(err);
+      setError(errorInfo.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleViewStudent = (student) => {
     setSelectedStudent(student);
@@ -80,7 +149,7 @@ const AdminDashboard = () => {
         title: "Delete Student",
         message: `Are you sure you want to delete ${student.name}? This action cannot be undone.`,
         onConfirm: () => {
-          console.log(`Deleting student: ${student.id}`);
+          console.log(`Deleting student: ${student._id}`);
           setStatusModal({
             isOpen: true,
             type: "success",
@@ -92,146 +161,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const stats = [
-    {
-      label: "Total Students",
-      value: "1,240",
-      change: "+12%",
-      icon: Users,
-      color: "text-primary-600",
-      bg: "bg-primary-50",
-    },
-    {
-      label: "Quizzes Sent",
-      value: "850",
-      change: "+5%",
-      icon: Send,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-    },
-    {
-      label: "Pending Response",
-      value: "390",
-      change: "-2%",
-      icon: Clock,
-      color: "text-orange-600",
-      bg: "bg-orange-50",
-    },
-  ];
-
-  const students = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+1 (555) 123-4567",
-      school: "Evergreen High School",
-      class: "10th Grade",
-      city: "San Francisco",
-      state: "California",
-      age: 16,
-      level: "Grade 10 - Science",
-      status: "Pending Quiz",
-      lastActivity: "Oct 24, 2023",
-      avatar: "https://i.pravatar.cc/150?u=1",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+1 (555) 234-5678",
-      school: "Oakwood Academy",
-      class: "11th Grade",
-      city: "New York",
-      state: "New York",
-      age: 17,
-      level: "Grade 11 - Arts",
-      status: "Sent",
-      lastActivity: "2 hours ago",
-      avatar: "https://i.pravatar.cc/150?u=2",
-    },
-    {
-      id: 3,
-      name: "Robert Fox",
-      email: "robert.fox@example.com",
-      phone: "+1 (555) 345-6789",
-      school: "Riverside International",
-      class: "12th Grade",
-      city: "Austin",
-      state: "Texas",
-      age: 18,
-      level: "Grade 12 - Commerce",
-      status: "Completed",
-      lastActivity: "Yesterday",
-      avatar: "https://i.pravatar.cc/150?u=3",
-    },
-    {
-      id: 4,
-      name: "Alice Lee",
-      email: "alice.lee@example.com",
-      phone: "+1 (555) 456-7890",
-      school: "Maplewood Prep",
-      class: "10th Grade",
-      city: "Seattle",
-      state: "Washington",
-      age: 15,
-      level: "Grade 10 - Science",
-      status: "Pending Quiz",
-      lastActivity: "3 days ago",
-      avatar: "https://i.pravatar.cc/150?u=4",
-    },
-    {
-      id: 5,
-      name: "Cameron Williamson",
-      email: "cameron.w@example.com",
-      phone: "+1 (555) 567-8901",
-      school: "Summit High",
-      class: "11th Grade",
-      city: "Denver",
-      state: "Colorado",
-      age: 16,
-      level: "Grade 11 - Arts",
-      status: "Sent",
-      lastActivity: "5 days ago",
-      avatar: "https://i.pravatar.cc/150?u=5",
-    },
-  ];
-
-  const filteredStudents = students.filter((student) => {
-    const matchesSearch =
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.id.toString().includes(searchQuery);
-
-    const matchesStatus =
-      selectedFilter === "All" ||
-      (selectedFilter === "Pending" && student.status === "Pending Quiz") ||
-      (selectedFilter === "Sent" && student.status === "Sent") ||
-      (selectedFilter === "Done" && student.status === "Completed");
-
-    const matchesAdvancedStatus =
-      activeFilters.status === "All" ||
-      student.status === activeFilters.status ||
-      (activeFilters.status === "Pending" &&
-        student.status === "Pending Quiz") ||
-      (activeFilters.status === "Completed" &&
-        student.status === "Completed") ||
-      (activeFilters.status === "Sent" && student.status === "Sent");
-
-    const matchesClass =
-      activeFilters.class === "All" || student.class === activeFilters.class;
-
-    const matchesSchool =
-      activeFilters.school === "All" || student.school === activeFilters.school;
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesAdvancedStatus &&
-      matchesClass &&
-      matchesSchool
-    );
-  });
+  const filteredStudents = students;
 
   const toggleSelectAll = () => {
     if (
@@ -366,6 +296,25 @@ const AdminDashboard = () => {
           title="Export Student Overview"
         />
 
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-red-900">Failed to load dashboard data</p>
+              <p className="text-xs text-red-700 mt-1">{error}</p>
+            </div>
+            <button
+              onClick={fetchDashboardData}
+              className="text-xs font-bold text-red-600 hover:text-red-700 underline">
+              Retry
+            </button>
+          </motion.div>
+        )}
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {stats.map((stat) => (
@@ -381,11 +330,10 @@ const AdminDashboard = () => {
                     {stat.value}
                   </h4>
                   <span
-                    className={`text-[9px] font-black px-1.5 py-0.5 rounded-md ${
-                      stat.change.startsWith("+")
+                    className={`text-[9px] font-black px-1.5 py-0.5 rounded-md ${stat.change.startsWith("+")
                         ? "bg-green-100 text-green-600"
                         : "bg-red-100 text-red-600"
-                    }`}>
+                      }`}>
                     {stat.change}
                   </span>
                 </div>
@@ -426,11 +374,10 @@ const AdminDashboard = () => {
                   <button
                     key={filter}
                     onClick={() => setSelectedFilter(filter)}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
-                      selectedFilter === filter
-                        ? "bg-primary-600 text-white shadow-sm"
-                        : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-                    }`}>
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${selectedFilter === filter
+                      ? "bg-primary-600 text-white shadow-sm"
+                      : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                      }`}>
                     {filter}
                   </button>
                 ))}
@@ -517,17 +464,16 @@ const AdminDashboard = () => {
                 {filteredStudents.length > 0 ? (
                   filteredStudents.map((student) => (
                     <tr
-                      key={student.id}
-                      className={`group transition-all ${
-                        selectedStudents.includes(student.id)
-                          ? "bg-primary-50/30"
-                          : "hover:bg-slate-50/30"
-                      }`}>
+                      key={student._id}
+                      className={`group transition-all ${selectedStudents.includes(student._id)
+                        ? "bg-primary-50/30"
+                        : "hover:bg-slate-50/30"
+                        }`}>
                       <td className="px-5 py-3">
                         <input
                           type="checkbox"
-                          checked={selectedStudents.includes(student.id)}
-                          onChange={() => toggleSelectStudent(student.id)}
+                          checked={selectedStudents.includes(student._id)}
+                          onChange={() => toggleSelectStudent(student._id)}
                           className="w-4 h-4 rounded border-slate-300"
                         />
                       </td>
@@ -564,13 +510,12 @@ const AdminDashboard = () => {
                             student.status
                           )}`}>
                           <div
-                            className={`w-1 h-1 rounded-full ${
-                              student.status === "Completed"
-                                ? "bg-green-600"
-                                : student.status === "Sent"
+                            className={`w-1 h-1 rounded-full ${student.status === "Completed"
+                              ? "bg-green-600"
+                              : student.status === "Sent"
                                 ? "bg-blue-600"
                                 : "bg-orange-600"
-                            }`}
+                              }`}
                           />
                           {student.status}
                         </span>
@@ -631,15 +576,13 @@ const AdminDashboard = () => {
                       typeof page === "number" &&
                       console.log(`Go to page ${page}`)
                     }
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                      page === 1
-                        ? "bg-primary-600 text-white shadow-sm"
-                        : "text-slate-500 hover:bg-slate-50"
-                    } ${
-                      typeof page !== "number"
+                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${page === 1
+                      ? "bg-primary-600 text-white shadow-sm"
+                      : "text-slate-500 hover:bg-slate-50"
+                      } ${typeof page !== "number"
                         ? "cursor-default pointer-events-none"
                         : ""
-                    }`}>
+                      }`}>
                     {page}
                   </button>
                 ))}
@@ -651,9 +594,9 @@ const AdminDashboard = () => {
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </DashboardLayout>
+        </div >
+      </div >
+    </DashboardLayout >
   );
 };
 

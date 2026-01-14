@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import {
   TrendingUp,
@@ -14,6 +14,8 @@ import {
   PieChart as PieChartIcon,
   Activity,
   ChevronDown,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -31,7 +33,8 @@ import {
 import StatusModal from "../../components/StatusModal";
 import ExportOptionsModal from "../../components/ExportOptionsModal";
 import RecentActivityModal from "../../components/RecentActivityModal";
-import { useState } from "react";
+import { analyticsService } from "../../services/analyticsService";
+import { handleApiError } from "../../utils/errorHandler";
 
 const Analytics = () => {
   const [isExportOpen, setIsExportOpen] = useState(false);
@@ -45,6 +48,30 @@ const Analytics = () => {
     title: "",
     message: "",
   });
+
+  // API state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [analyticsData, setAnalyticsData] = useState(null);
+
+  // Fetch analytics data
+  useEffect(() => {
+    fetchAnalytics();
+  }, [dateRange]);
+
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await analyticsService.getDashboardAnalytics(dateRange);
+      setAnalyticsData(response.data);
+    } catch (err) {
+      const errorInfo = handleApiError(err);
+      setError(errorInfo.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDateFilter = () => {
     setIsDateRangeOpen(!isDateRangeOpen);
@@ -61,13 +88,6 @@ const Analytics = () => {
   const handleDateSelect = (option) => {
     setDateRange(option);
     setIsDateRangeOpen(false);
-    // Simulate data loading
-    setStatusModal({
-      isOpen: true,
-      type: "info",
-      title: "Data Updated",
-      message: `Analytics data has been updated for ${option}.`,
-    });
   };
 
   const handleDownloadReport = () => {
@@ -87,34 +107,12 @@ const Analytics = () => {
     setIsRecentActivityOpen(true);
   };
 
-  const monthlyGrowthData = [
-    { name: "Jan", students: 400 },
-    { name: "Feb", students: 600 },
-    { name: "Mar", students: 500 },
-    { name: "Apr", students: 900 },
-    { name: "May", students: 1100 },
-    { name: "Jun", students: 1240 },
-  ];
-
-  const weeklyGrowthData = [
-    { name: "Week 1", students: 120 },
-    { name: "Week 2", students: 250 },
-    { name: "Week 3", students: 480 },
-    { name: "Week 4", students: 390 },
-  ];
-
-  const performanceData = [
-    { name: "High Scores", value: 24, color: "#22c55e" },
-    { name: "Average", value: 48, color: "#3b82f6" },
-    { name: "Passing", value: 18, color: "#f97316" },
-    { name: "Below Avg", value: 10, color: "#ef4444" },
-  ];
-
-  const stats = [
+  // Use API data or fallback to defaults
+  const stats = analyticsData?.stats || [
     {
       label: "Total Students",
-      value: "1,240",
-      trend: "+12.5%",
+      value: "0",
+      trend: "0%",
       isPositive: true,
       icon: Users,
       bgColor: "bg-blue-50",
@@ -122,8 +120,8 @@ const Analytics = () => {
     },
     {
       label: "Quiz Completion Rate",
-      value: "84.2%",
-      trend: "+3.2%",
+      value: "0%",
+      trend: "0%",
       isPositive: true,
       icon: Award,
       bgColor: "bg-green-50",
@@ -131,14 +129,18 @@ const Analytics = () => {
     },
     {
       label: "Avg. Test Score",
-      value: "76/100",
-      trend: "-1.5%",
+      value: "0/100",
+      trend: "0%",
       isPositive: false,
       icon: Activity,
       bgColor: "bg-orange-50",
       textColor: "text-orange-600",
     },
   ];
+
+  const monthlyGrowthData = analyticsData?.monthlyGrowth || [];
+  const weeklyGrowthData = analyticsData?.weeklyGrowth || [];
+  const performanceData = analyticsData?.performance || [];
 
   return (
     <DashboardLayout role="admin">
@@ -157,15 +159,13 @@ const Analytics = () => {
             <div className="relative flex-1 sm:flex-none">
               <button
                 onClick={handleDateFilter}
-                className={`w-full btn-modern-outline !py-2.5 !px-4 flex items-center justify-center gap-2 transition-all ${
-                  isDateRangeOpen ? "border-primary-300 bg-primary-50/30" : ""
-                }`}>
+                className={`w-full btn-modern-outline !py-2.5 !px-4 flex items-center justify-center gap-2 transition-all ${isDateRangeOpen ? "border-primary-300 bg-primary-50/30" : ""
+                  }`}>
                 <Calendar className="w-4 h-4" />
                 <span className="text-xs font-bold">{dateRange}</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${
-                    isDateRangeOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isDateRangeOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -185,11 +185,10 @@ const Analytics = () => {
                         <button
                           key={option}
                           onClick={() => handleDateSelect(option)}
-                          className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                            dateRange === option
-                              ? "bg-primary-50 text-primary-600"
-                              : "text-slate-600 hover:bg-slate-50"
-                          }`}>
+                          className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${dateRange === option
+                            ? "bg-primary-50 text-primary-600"
+                            : "text-slate-600 hover:bg-slate-50"
+                            }`}>
                           {option}
                         </button>
                       ))}
@@ -207,6 +206,25 @@ const Analytics = () => {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-red-900">Failed to load analytics</p>
+              <p className="text-xs text-red-700 mt-1">{error}</p>
+            </div>
+            <button
+              onClick={fetchAnalytics}
+              className="text-xs font-bold text-red-600 hover:text-red-700 underline">
+              Retry
+            </button>
+          </motion.div>
+        )}
+
         {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, idx) => (
@@ -222,9 +240,8 @@ const Analytics = () => {
                   <stat.icon className="w-5 h-5" />
                 </div>
                 <div
-                  className={`flex items-center gap-1 text-[10px] font-black ${
-                    stat.isPositive ? "text-green-600" : "text-red-600"
-                  }`}>
+                  className={`flex items-center gap-1 text-[10px] font-black ${stat.isPositive ? "text-green-600" : "text-red-600"
+                    }`}>
                   {stat.isPositive ? (
                     <ArrowUpRight className="w-3 h-3" />
                   ) : (
@@ -260,11 +277,10 @@ const Analytics = () => {
                   <button
                     key={view}
                     onClick={() => setChartView(view)}
-                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${
-                      chartView === view
-                        ? "bg-white shadow-sm text-primary-600"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}>
+                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${chartView === view
+                      ? "bg-white shadow-sm text-primary-600"
+                      : "text-slate-500 hover:text-slate-700"
+                      }`}>
                     {view}
                   </button>
                 ))}

@@ -20,16 +20,11 @@ const Sidebar = ({ role = "student", onClose }) => {
 
   const studentLinks = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { name: "My Courses", icon: BookOpen, path: "/courses" },
-    { name: "Grades", icon: GraduationCap, path: "/grades" },
-    { name: "Schedule", icon: Calendar, path: "/schedule" },
-    { name: "Settings", icon: Settings, path: "/settings" },
   ];
 
   const adminLinks = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
     { name: "Student List", icon: User, path: "/admin/students" },
-    { name: "Quiz Management", icon: BookOpen, path: "/admin/quizzes" },
     { name: "Financials", icon: Wallet, path: "/admin/wallet" },
     { name: "Analytics", icon: GraduationCap, path: "/admin/analytics" },
     { name: "Settings", icon: Settings, path: "/admin/settings" },
@@ -84,11 +79,10 @@ const Sidebar = ({ role = "student", onClose }) => {
               {({ isActive }) => (
                 <>
                   <link.icon
-                    className={`w-4 h-4 transition-colors ${
-                      isActive
-                        ? "text-primary-600"
-                        : "text-slate-400 group-hover:text-primary-500"
-                    }`}
+                    className={`w-4 h-4 transition-colors ${isActive
+                      ? "text-primary-600"
+                      : "text-slate-400 group-hover:text-primary-500"
+                      }`}
                   />
                   <span className="flex-1 text-[11px]">{link.name}</span>
                   {isActive && (

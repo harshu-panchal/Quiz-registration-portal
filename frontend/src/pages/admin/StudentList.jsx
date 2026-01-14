@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import {
   Users,
@@ -15,6 +15,8 @@ import {
   Trash2,
   Edit2,
   X,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddStudentModal from "../../components/AddStudentModal";
@@ -24,6 +26,8 @@ import ContactStudentModal from "../../components/ContactStudentModal";
 import FilterOptionsModal from "../../components/FilterOptionsModal";
 import StatusModal from "../../components/StatusModal";
 import ExportOptionsModal from "../../components/ExportOptionsModal";
+import { studentService } from "../../services/studentService";
+import { handleApiError } from "../../utils/errorHandler";
 
 const StudentList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,115 +39,51 @@ const StudentList = () => {
     dateRange: "All Time",
   });
 
-  const students = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+1 (555) 123-4567",
-      school: "Evergreen High School",
-      class: "10th Grade",
-      city: "San Francisco",
-      state: "California",
-      age: 16,
-      level: "Grade 10 - Science",
-      status: "Active",
-      lastActivity: "Oct 24, 2023",
-      avatar: "https://i.pravatar.cc/150?u=1",
-      joinDate: "Jan 12, 2023",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+1 (555) 234-5678",
-      school: "Oakwood Academy",
-      class: "11th Grade",
-      city: "New York",
-      state: "New York",
-      age: 17,
-      level: "Grade 11 - Arts",
-      status: "Active",
-      lastActivity: "2 hours ago",
-      avatar: "https://i.pravatar.cc/150?u=2",
-      joinDate: "Feb 05, 2023",
-    },
-    {
-      id: 3,
-      name: "Robert Fox",
-      email: "robert.fox@example.com",
-      phone: "+1 (555) 345-6789",
-      school: "Riverside International",
-      class: "12th Grade",
-      city: "Austin",
-      state: "Texas",
-      age: 18,
-      level: "Grade 12 - Commerce",
-      status: "Inactive",
-      lastActivity: "Yesterday",
-      avatar: "https://i.pravatar.cc/150?u=3",
-      joinDate: "Mar 20, 2023",
-    },
-    {
-      id: 4,
-      name: "Alice Lee",
-      email: "alice.lee@example.com",
-      phone: "+1 (555) 456-7890",
-      school: "Maplewood Prep",
-      class: "10th Grade",
-      city: "Seattle",
-      state: "Washington",
-      age: 15,
-      level: "Grade 10 - Science",
-      status: "Active",
-      lastActivity: "3 days ago",
-      avatar: "https://i.pravatar.cc/150?u=4",
-      joinDate: "Apr 15, 2023",
-    },
-    {
-      id: 5,
-      name: "Cameron Williamson",
-      email: "cameron.w@example.com",
-      phone: "+1 (555) 567-8901",
-      school: "Summit High",
-      class: "11th Grade",
-      city: "Denver",
-      state: "Colorado",
-      age: 16,
-      level: "Grade 11 - Arts",
-      status: "Pending",
-      lastActivity: "5 days ago",
-      avatar: "https://i.pravatar.cc/150?u=5",
-      joinDate: "May 10, 2023",
-    },
-  ];
-
-  const filteredStudents = students.filter((student) => {
-    const matchesSearch =
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.id.toString().includes(searchQuery);
-
-    const matchesStatus =
-      selectedFilter === "All" || student.status === selectedFilter;
-
-    const matchesAdvancedStatus =
-      activeFilters.status === "All" || student.status === activeFilters.status;
-
-    const matchesClass =
-      activeFilters.class === "All" || student.class === activeFilters.class;
-
-    const matchesSchool =
-      activeFilters.school === "All" || student.school === activeFilters.school;
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesAdvancedStatus &&
-      matchesClass &&
-      matchesSchool
-    );
+  // API state
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
   });
+
+  // Fetch students from API
+  useEffect(() => {
+    fetchStudents();
+  }, [searchQuery, selectedFilter, activeFilters, pagination.page]);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = {
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchQuery || undefined,
+        status: selectedFilter !== 'All' ? selectedFilter : undefined,
+      };
+
+      const response = await studentService.getStudents(params);
+
+      setStudents(response.data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: response.total || 0,
+        totalPages: response.totalPages || 0
+      }));
+    } catch (err) {
+      const errorInfo = handleApiError(err);
+      setError(errorInfo.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredStudents = students;
 
   const [selectedStudents, setSelectedStudents] = useState([]);
 
@@ -377,16 +317,34 @@ const StudentList = () => {
                 <button
                   key={filter}
                   onClick={() => setSelectedFilter(filter)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    selectedFilter === filter
-                      ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
-                      : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-                  }`}>
+                  className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${selectedFilter === filter
+                    ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
+                    : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                    }`}>
                   {filter}
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Error Display */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 mb-4">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs font-bold text-red-900">Failed to load students</p>
+                <p className="text-xs text-red-700 mt-1">{error}</p>
+              </div>
+              <button
+                onClick={fetchStudents}
+                className="text-xs font-bold text-red-600 hover:text-red-700 underline">
+                Retry
+              </button>
+            </motion.div>
+          )}
 
           {/* Table */}
           <div className="overflow-x-auto relative">
@@ -458,27 +416,65 @@ const StudentList = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredStudents.length > 0 ? (
+                {loading ? (
+                  // Loading skeleton
+                  [...Array(5)].map((_, idx) => (
+                    <tr key={idx} className="animate-pulse">
+                      <td className="px-6 py-4">
+                        <div className="w-4 h-4 bg-slate-200 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="w-20 h-4 bg-slate-200 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-slate-200 rounded-xl"></div>
+                          <div className="space-y-2">
+                            <div className="w-32 h-3 bg-slate-200 rounded"></div>
+                            <div className="w-40 h-3 bg-slate-200 rounded"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="space-y-2">
+                          <div className="w-36 h-3 bg-slate-200 rounded"></div>
+                          <div className="w-24 h-3 bg-slate-200 rounded"></div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="w-20 h-3 bg-slate-200 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="w-16 h-6 bg-slate-200 rounded-full"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="w-20 h-3 bg-slate-200 rounded"></div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="w-8 h-8 bg-slate-200 rounded-lg ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : filteredStudents.length > 0 ? (
                   filteredStudents.map((student) => (
                     <motion.tr
                       layout
-                      key={student.id}
-                      className={`group transition-all ${
-                        selectedStudents.includes(student.id)
-                          ? "bg-primary-50/30"
-                          : "hover:bg-slate-50/50"
-                      }`}>
+                      key={student._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="hover:bg-slate-50/80 transition-colors border-b border-slate-100 last:border-0">
                       <td className="px-6 py-4">
                         <input
                           type="checkbox"
-                          checked={selectedStudents.includes(student.id)}
-                          onChange={() => toggleSelectStudent(student.id)}
+                          checked={selectedStudents.includes(student._id)}
+                          onChange={() => toggleSelectStudent(student._id)}
                           className="w-4.5 h-4.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500/20"
                         />
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-lg">
-                          #STU-{student.id.toString().padStart(4, "0")}
+                          #STU-{student._id.toString().slice(-4).padStart(4, "0")}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -490,11 +486,10 @@ const StudentList = () => {
                               className="w-10 h-10 rounded-xl object-cover ring-2 ring-white group-hover:ring-primary-100 transition-all shadow-sm"
                             />
                             <div
-                              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-white rounded-full ${
-                                student.status === "Active"
-                                  ? "bg-green-500"
-                                  : "bg-slate-300"
-                              }`}></div>
+                              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-white rounded-full ${student.status === "Active"
+                                ? "bg-green-500"
+                                : "bg-slate-300"
+                                }`}></div>
                           </div>
                           <div className="min-w-0">
                             <button
@@ -568,13 +563,14 @@ const StudentList = () => {
           <div className="p-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/30">
             <div className="flex items-center gap-4 order-2 sm:order-1">
               <p className="text-xs text-slate-500 font-bold">
-                Showing <span className="text-slate-900">1-5</span> of{" "}
-                <span className="text-slate-900">1,240</span> students
+                Showing <span className="text-slate-900">{((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of{" "}
+                <span className="text-slate-900">{pagination.total}</span> students
               </p>
               <select
-                onChange={(e) =>
-                  console.log(`Page size changed to: ${e.target.value}`)
-                }
+                value={pagination.limit}
+                onChange={(e) => {
+                  setPagination(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }));
+                }}
                 className="bg-transparent border-none text-xs font-bold text-slate-500 focus:ring-0 cursor-pointer hover:text-primary-600 transition-colors">
                 <option value="10">Show 10</option>
                 <option value="20">Show 20</option>
@@ -583,27 +579,32 @@ const StudentList = () => {
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <button
-                onClick={() => console.log("Prev page")}
-                className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-primary-600 hover:border-primary-100 disabled:opacity-50 transition-all shadow-sm">
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+                disabled={pagination.page === 1 || loading}
+                className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-primary-600 hover:border-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm">
                 <ChevronLeft className="w-4.5 h-4.5" />
               </button>
               <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => console.log(`Go to page ${page}`)}
-                    className={`w-9 h-9 rounded-xl text-xs font-black transition-all ${
-                      page === 1
+                {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
+                      disabled={loading}
+                      className={`w-9 h-9 rounded-xl text-xs font-black transition-all disabled:cursor-not-allowed ${pagination.page === pageNum
                         ? "bg-primary-600 text-white shadow-lg shadow-primary-100"
                         : "text-slate-500 hover:bg-white hover:text-primary-600 border border-transparent hover:border-slate-200"
-                    }`}>
-                    {page}
-                  </button>
-                ))}
+                        }`}>
+                      {pageNum}
+                    </button>
+                  );
+                })}
               </div>
               <button
-                onClick={() => console.log("Next page")}
-                className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-primary-600 hover:border-primary-100 transition-all shadow-sm">
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
+                disabled={pagination.page >= pagination.totalPages || loading}
+                className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-white hover:text-primary-600 hover:border-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm">
                 <ChevronRight className="w-4.5 h-4.5" />
               </button>
             </div>

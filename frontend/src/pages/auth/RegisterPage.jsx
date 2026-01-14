@@ -22,8 +22,11 @@ import {
   MapPin,
   Calendar,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
+import { handleApiError } from "../../utils/errorHandler";
 
 const registerSchema = z.object({
   fullName: z
@@ -42,6 +45,8 @@ const registerSchema = z.object({
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -64,19 +69,42 @@ const RegisterPage = () => {
     },
   });
 
-  const onRegisterSubmit = (data) => {
-    // In real app, this would trigger Razorpay payment first
-    console.log("Registering:", data);
+  const onRegisterSubmit = async (data) => {
+    try {
+      setLoading(true);
+      setApiError('');
 
-    // Simulate auto-login after "payment"
-    login({
-      name: data.fullName,
-      email: data.email,
-      role: "student",
-      avatar: `https://i.pravatar.cc/150?u=${data.email}`,
-    });
+      // Call backend registration API
+      const response = await authService.register({
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        age: data.age,
+        school: data.school,
+        class: data.studentClass,
+        city: data.city,
+        state: data.state,
+      });
 
-    navigate("/dashboard");
+      // Backend returns: { success: true, data: { _id, name, email, role, avatar, token } }
+      // Auto-login after successful registration
+      login({
+        _id: response.data._id,
+        name: response.data.name,
+        email: response.data.email,
+        role: response.data.role,
+        avatar: response.data.avatar,
+        token: response.data.token
+      });
+
+      navigate("/dashboard");
+    } catch (err) {
+      const errorInfo = handleApiError(err);
+      setApiError(errorInfo.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -191,6 +219,19 @@ const RegisterPage = () => {
               </p>
             </div>
 
+            {apiError && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-red-900">Registration Failed</p>
+                  <p className="text-xs text-red-700 mt-1">{apiError}</p>
+                </div>
+              </motion.div>
+            )}
+
             <form
               onSubmit={handleSubmit(onRegisterSubmit)}
               className="space-y-4">
@@ -201,18 +242,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <User
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.fullName
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.fullName
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="text"
                       placeholder="Alex Johnson"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.fullName ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.fullName ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("fullName")}
                     />
                   </div>
@@ -230,18 +269,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <Mail
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.email
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.email
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="email"
                       placeholder="name@example.com"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.email ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.email ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("email")}
                     />
                   </div>
@@ -259,18 +296,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <Phone
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.phone
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.phone
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="tel"
                       placeholder="+91 00000 00000"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.phone ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.phone ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("phone")}
                     />
                   </div>
@@ -288,18 +323,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <Calendar
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.age
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.age
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="number"
                       placeholder="18"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.age ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.age ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("age")}
                     />
                   </div>
@@ -317,18 +350,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <School
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.school
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.school
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="text"
                       placeholder="High School Name"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.school ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.school ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("school")}
                     />
                   </div>
@@ -346,20 +377,18 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <GraduationCap
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.studentClass
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.studentClass
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="text"
                       placeholder="e.g. 10th"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.studentClass
-                          ? "!border-red-200 !bg-red-50/50"
-                          : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.studentClass
+                        ? "!border-red-200 !bg-red-50/50"
+                        : ""
+                        }`}
                       {...register("studentClass")}
                     />
                   </div>
@@ -377,18 +406,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <MapPin
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.city
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.city
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="text"
                       placeholder="City"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.city ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.city ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("city")}
                     />
                   </div>
@@ -406,18 +433,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <MapPin
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.state
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.state
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type="text"
                       placeholder="State"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.state ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.state ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("state")}
                     />
                   </div>
@@ -435,18 +460,16 @@ const RegisterPage = () => {
                   </label>
                   <div className="relative group">
                     <Lock
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                        errors.password
-                          ? "text-red-400"
-                          : "text-slate-300 group-focus-within:text-primary-500"
-                      }`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${errors.password
+                        ? "text-red-400"
+                        : "text-slate-300 group-focus-within:text-primary-500"
+                        }`}
                     />
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className={`modern-input !pl-12 !py-2.5 ${
-                        errors.password ? "!border-red-200 !bg-red-50/50" : ""
-                      }`}
+                      className={`modern-input !pl-12 !py-2.5 ${errors.password ? "!border-red-200 !bg-red-50/50" : ""
+                        }`}
                       {...register("password")}
                     />
                     <button
@@ -487,12 +510,22 @@ const RegisterPage = () => {
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: loading ? 1 : 1.01 }}
+                whileTap={{ scale: loading ? 1 : 0.99 }}
                 type="submit"
-                className="btn-modern-primary w-full flex items-center justify-center gap-2 text-sm py-3.5 mt-2">
-                Pay & Register
-                <ArrowRight className="w-4 h-4" />
+                disabled={loading}
+                className="btn-modern-primary w-full flex items-center justify-center gap-2 text-sm py-3.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Registering...
+                  </>
+                ) : (
+                  <>
+                    Pay & Register
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </motion.button>
             </form>
 
