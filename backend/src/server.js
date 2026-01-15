@@ -20,9 +20,6 @@ const quizRoutes = require('./routes/quizRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 
-// Connect to database
-connectDB();
-
 const app = express();
 
 // Security middleware
@@ -36,6 +33,8 @@ const allowedOrigins = [
     (process.env.FRONTEND_URL || '').replace(/\/$/, ''),
 ].filter(Boolean);
 
+console.log('📍 Allowed CORS origins:', allowedOrigins);
+
 app.use(
     cors({
         origin: function (origin, callback) {
@@ -44,6 +43,7 @@ app.use(
             if (allowedOrigins.indexOf(origin) !== -1) {
                 callback(null, true);
             } else {
+                console.log('❌ CORS blocked origin:', origin);
                 callback(new Error('Not allowed by CORS'));
             }
         },
@@ -69,6 +69,15 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+// Health check route - placed BEFORE other routes for quick response
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Quiz Portal API is running',
+        timestamp: new Date().toISOString(),
+    });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
@@ -78,21 +87,25 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/payment', require('./routes/paymentRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 
-// Health check route
-app.get('/api/health', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Quiz Portal API is running',
-        timestamp: new Date().toISOString(),
-    });
-});
-
 // Error handling
 app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+// START SERVER FIRST, then connect to database
+// This ensures Railway health check passes immediately
 app.listen(PORT, () => {
     console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+
+    // Connect to database AFTER server is listening
+    console.log('🔌 Connecting to MongoDB...');
+    connectDB()
+        .then(() => {
+            console.log('✅ Database connection established');
+        })
+        .catch((err) => {
+            console.error('❌ Database connection failed:', err.message);
+            // Don't exit - let the server keep running for health checks
+        });
 });
