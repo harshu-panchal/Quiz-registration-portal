@@ -2,11 +2,21 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Lazy initialization of Razorpay to prevent crash on startup if env vars are missing
+let razorpay = null;
+
+const getRazorpayInstance = () => {
+    if (!razorpay) {
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            throw new Error('Razorpay credentials (RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET) are not configured');
+        }
+        razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+    }
+    return razorpay;
+};
 
 // @desc    Create Razorpay Order
 // @route   POST /api/payment/order
@@ -26,7 +36,7 @@ const createOrder = asyncHandler(async (req, res) => {
     };
 
     try {
-        const order = await razorpay.orders.create(options);
+        const order = await getRazorpayInstance().orders.create(options);
         res.json({
             success: true,
             order,
