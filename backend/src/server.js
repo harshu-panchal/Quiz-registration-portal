@@ -35,6 +35,8 @@ const allowedOrigins = [
 
 console.log('📍 Allowed CORS origins:', allowedOrigins);
 
+//ervgwsdf
+
 app.use(
     cors({
         origin: function (origin, callback) {
