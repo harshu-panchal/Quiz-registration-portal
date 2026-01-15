@@ -66,6 +66,10 @@ app.use('/api/auth', limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Serve static uploads
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));

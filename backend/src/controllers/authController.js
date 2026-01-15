@@ -294,7 +294,12 @@ const updateProfilePhoto = asyncHandler(async (req, res) => {
 
     // Save path relative to project root / src for frontend usage
     // For local dev, Vite can serve from /src/assets/profiles/
-    user.avatar = `/src/assets/profiles/${req.file.filename}`;
+    // BUT for production/backend integration, we should serve from backend
+    if (req.file) {
+        // user.avatar = `/src/assets/profiles/${req.file.filename}`;
+        // Assuming we will serve 'uploads' folder as '/uploads' static route
+        user.avatar = `/uploads/${req.file.filename}`;
+    }
     await user.save();
 
     res.json({
