@@ -40,6 +40,11 @@ const register = asyncHandler(async (req, res) => {
                     paymentStatus = 'Paid';
                     paymentDate = new Date();
 
+                    // Fetch actual registration fee from settings
+                    const Settings = require('../models/Settings');
+                    const settings = await Settings.findOne({});
+                    const registrationFee = settings?.registrationFee || 100;
+
                     // Create Transaction Record
                     const Transaction = require('../models/Transaction');
                     await Transaction.create({
@@ -47,7 +52,7 @@ const register = asyncHandler(async (req, res) => {
                         userId: user._id,
                         type: 'Income',
                         source: 'Student Registration Fee',
-                        amount: 100, // TODO: Fetch from settings or pass from frontend/order
+                        amount: registrationFee,
                         status: 'Completed',
                         paymentMethod: 'Razorpay',
                         transactionId: req.body.paymentId,
