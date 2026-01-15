@@ -1,4 +1,9 @@
 require('dotenv').config();
+console.log('🔄 Starting server initialization...');
+console.log(`📍 Node version: ${process.version}`);
+console.log(`📍 Environment: ${process.env.NODE_ENV}`);
+console.log(`📍 PORT env: ${process.env.PORT}`);
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
