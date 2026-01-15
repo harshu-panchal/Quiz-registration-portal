@@ -22,6 +22,9 @@ const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 
+// Trust proxy for Railway/Vercel (required for rate limiting)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
