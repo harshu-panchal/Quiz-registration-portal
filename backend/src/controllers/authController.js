@@ -191,6 +191,7 @@ const getMe = asyncHandler(async (req, res) => {
                 status: student.status,
                 regDate: student.joinDate, // Mapping joinDate to regDate
                 quizStatus: student.quizStatus || 'PENDING', // Assuming maybe this field exists or needs defaults
+                paymentStatus: student.paymentStatus || 'Pending', // Added paymentStatus
             };
         }
     }

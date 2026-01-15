@@ -18,8 +18,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 import { authService } from "../../services/authService";
 import { handleApiError } from "../../utils/errorHandler";
+import LanguageToggle from "../../components/LanguageToggle";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -30,6 +32,7 @@ const loginSchema = z.object({
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
 
@@ -100,7 +103,7 @@ const LoginPage = () => {
 
             <div className="mt-16 space-y-6">
               <h1 className="text-4xl font-black tracking-tight leading-[1.1]">
-                Master your <br />
+                {t('welcome_back')} <br />
                 <span className="text-primary-400">Future</span> today.
               </h1>
               <p className="text-slate-400 text-sm max-w-xs font-medium leading-relaxed">
@@ -114,17 +117,17 @@ const LoginPage = () => {
             <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
               <Zap className="w-5 h-5 text-primary-400 mb-3" />
               <p className="text-xs font-bold text-white mb-0.5">
-                Fast & Reliable
+                {t('fast_reliable')}
               </p>
               <p className="text-[10px] text-slate-400 font-medium">
-                99.9% uptime guaranteed.
+                {t('uptime_guaranteed')}
               </p>
             </div>
             <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
               <ShieldCheck className="w-5 h-5 text-green-400 mb-3" />
-              <p className="text-xs font-bold text-white mb-0.5">Secure Data</p>
+              <p className="text-xs font-bold text-white mb-0.5">{t('secure_data')}</p>
               <p className="text-[10px] text-slate-400 font-medium">
-                Enterprise encryption.
+                {t('enterprise_encryption')}
               </p>
             </div>
           </div>
@@ -139,27 +142,30 @@ const LoginPage = () => {
         <div className="p-8 lg:p-12 flex flex-col justify-center">
           <div className="max-w-sm mx-auto w-full space-y-8">
             <div className="space-y-2">
-              <div className="flex items-center justify-between lg:hidden mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <Link
                   to="/"
                   className="inline-flex items-center gap-2 text-slate-400 font-bold text-xs hover:text-primary-600 transition-colors">
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  Back
+                  {t('back_to_home')}
                 </Link>
-                <Link to="/" className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/20">
-                    <GraduationCap className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-black tracking-tighter text-slate-900">
-                    EduPortal
-                  </span>
-                </Link>
+                <div className="flex items-center gap-3">
+                  <LanguageToggle />
+                  <Link to="/" className="flex items-center gap-2 lg:hidden">
+                    <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/20">
+                      <GraduationCap className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-sm font-black tracking-tighter text-slate-900">
+                      EduPortal
+                    </span>
+                  </Link>
+                </div>
               </div>
               <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                Welcome back!
+                {t('welcome_back')}
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Sign in to your account to continue.
+                {t('sign_in_continue')}
               </p>
             </div>
 
@@ -170,7 +176,7 @@ const LoginPage = () => {
                 className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-red-900">Login Failed</p>
+                  <p className="text-xs font-bold text-red-900">{t('login_failed')}</p>
                   <p className="text-xs text-red-700 mt-1">{apiError}</p>
                 </div>
               </motion.div>
@@ -180,7 +186,7 @@ const LoginPage = () => {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                    Email Address
+                    {t('email_address')}
                   </label>
                   <div className="relative group">
                     <Mail
@@ -208,12 +214,12 @@ const LoginPage = () => {
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center ml-1">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      Password
+                      {t('password')}
                     </label>
                     <button
                       type="button"
                       className="text-[10px] font-bold text-primary-600 hover:text-primary-700">
-                      Forgot?
+                      {t('forgot_password')}
                     </button>
                   </div>
                   <div className="relative group">
@@ -263,11 +269,11 @@ const LoginPage = () => {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Signing In...
+                    {t('signing_in')}
                   </>
                 ) : (
                   <>
-                    Sign In
+                    {t('sign_in')}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -275,21 +281,21 @@ const LoginPage = () => {
             </form>
 
             <p className="text-center text-xs text-slate-500 font-medium">
-              Don't have an account?{" "}
+              {t('dont_have_account')}{" "}
               <Link
                 to="/register"
                 className="text-primary-600 font-black hover:underline underline-offset-4">
-                Create one
+                {t('create_one')}
               </Link>
             </p>
 
             <div className="pt-4 border-t border-slate-200">
               <p className="text-center text-xs text-slate-500 font-medium">
-                Administrator?{" "}
+                {t('administrator')}{" "}
                 <Link
                   to="/admin/login"
                   className="text-amber-600 font-black hover:underline underline-offset-4">
-                  Admin Login
+                  {t('admin_login')}
                 </Link>
               </p>
             </div>

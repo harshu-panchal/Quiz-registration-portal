@@ -14,20 +14,22 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 const Sidebar = ({ role = "student", onClose }) => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
 
   const studentLinks = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   ];
 
   const adminLinks = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
-    { name: "Student List", icon: User, path: "/admin/students" },
-    { name: "Financials", icon: Wallet, path: "/admin/wallet" },
-    { name: "Analytics", icon: GraduationCap, path: "/admin/analytics" },
-    { name: "Settings", icon: Settings, path: "/admin/settings" },
+    { name: "dashboard", icon: LayoutDashboard, path: "/admin" },
+    { name: "student_list", icon: User, path: "/admin/students" },
+    { name: "financials", icon: Wallet, path: "/admin/wallet" },
+    { name: "analytics", icon: GraduationCap, path: "/admin/analytics" },
+    { name: "settings", icon: Settings, path: "/admin/settings" },
   ];
 
   const links = role === "admin" ? adminLinks : studentLinks;
@@ -58,7 +60,7 @@ const Sidebar = ({ role = "student", onClose }) => {
             {user?.name || "User"}
           </p>
           <p className="text-[9px] text-primary-600 font-black uppercase tracking-widest mt-0.5 truncate">
-            {role === "admin" ? "Administrator" : "CS Student"}
+            {role === "admin" ? t('administrator') : t('cs_student')}
           </p>
         </div>
       </div>
@@ -84,7 +86,7 @@ const Sidebar = ({ role = "student", onClose }) => {
                       : "text-slate-400 group-hover:text-primary-500"
                       }`}
                   />
-                  <span className="flex-1 text-[11px]">{link.name}</span>
+                  <span className="flex-1 text-[11px]">{t(link.name)}</span>
                   {isActive && (
                     <motion.div layoutId="active-pill">
                       <ChevronRight className="w-3.5 h-3.5 text-primary-600" />
@@ -106,7 +108,7 @@ const Sidebar = ({ role = "student", onClose }) => {
         }}
         className="mt-6 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
         <LogOut className="w-4 h-4 text-primary-400" />
-        Log Out
+        {t('log_out')}
       </motion.button>
     </div>
   );

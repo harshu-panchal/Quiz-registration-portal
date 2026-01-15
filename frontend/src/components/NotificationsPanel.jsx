@@ -9,9 +9,12 @@ import {
   BookOpen,
   X,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import StatusModal from "./StatusModal";
 
 const NotificationsPanel = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
     type: "info",
@@ -21,7 +24,7 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
   const notifications = [
     {
       id: 1,
-      title: "New Student Registered",
+      title: t('new_student_registered'),
       desc: "Alex Johnson just joined the platform.",
       time: "2 mins ago",
       icon: UserPlus,
@@ -30,7 +33,7 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
     },
     {
       id: 2,
-      title: "Quiz Completed",
+      title: t('quiz_completed'),
       desc: "Jane Smith finished 'Python Basics' with 85%.",
       time: "1 hour ago",
       icon: CheckCircle2,
@@ -39,7 +42,7 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
     },
     {
       id: 3,
-      title: "System Update",
+      title: t('system_update'),
       desc: "Analytics module has been updated to v2.4.",
       time: "5 hours ago",
       icon: AlertCircle,
@@ -48,7 +51,7 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
     },
     {
       id: 4,
-      title: "Pending Approval",
+      title: t('pending_approval'),
       desc: "3 students are waiting for quiz approval.",
       time: "Yesterday",
       icon: Clock,
@@ -73,7 +76,7 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
               <div className="flex items-center gap-2">
                 <Bell className="w-4 h-4 text-primary-600" />
                 <h3 className="font-black text-slate-900 text-sm">
-                  Notifications
+                  {t('notifications')}
                 </h3>
               </div>
               <button
@@ -87,11 +90,10 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
               {notifications.map((n, idx) => (
                 <div
                   key={n.id}
-                  className={`p-4 flex gap-4 hover:bg-slate-50 transition-colors cursor-pointer ${
-                    idx !== notifications.length - 1
+                  className={`p-4 flex gap-4 hover:bg-slate-50 transition-colors cursor-pointer ${idx !== notifications.length - 1
                       ? "border-b border-slate-50"
                       : ""
-                  }`}>
+                    }`}>
                   <div
                     className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${n.bg} ${n.color}`}>
                     <n.icon className="w-5 h-5" />
@@ -117,13 +119,13 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
                   setStatusModal({
                     isOpen: true,
                     type: "info",
-                    title: "Notifications",
+                    title: t('notifications'),
                     message:
-                      "You are being redirected to the full notifications center.",
+                      t('redirecting_notifications'),
                   })
                 }
                 className="w-full py-2 rounded-xl text-[11px] font-black text-primary-600 hover:bg-white transition-all uppercase tracking-widest">
-                View All Notifications
+                {t('view_all_notifications')}
               </button>
             </div>
           </motion.div>

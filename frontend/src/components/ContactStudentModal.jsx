@@ -12,6 +12,7 @@ import StatusModal from "./StatusModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useLanguage } from "../context/LanguageContext";
 
 const contactSchema = z.object({
   message: z
@@ -22,6 +23,7 @@ const contactSchema = z.object({
 });
 
 const ContactStudentModal = ({ isOpen, onClose, student }) => {
+  const { t } = useLanguage();
   const [isSending, setIsSending] = useState(false);
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
@@ -58,8 +60,8 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
       setStatusModal({
         isOpen: true,
         type: "success",
-        title: "Message Sent",
-        message: `Your message has been successfully delivered to ${student.name} via ${data.contactMethod}.`,
+        title: t('message_sent'),
+        message: t('message_delivered_msg'),
       });
       reset();
     }, 1500);
@@ -97,7 +99,7 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                Contact Method
+                {t('contact_method')}
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {[
@@ -109,11 +111,10 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
                     key={method.id}
                     type="button"
                     onClick={() => setValue("contactMethod", method.id)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
-                      contactMethod === method.id
+                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${contactMethod === method.id
                         ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
                         : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
-                    }`}>
+                      }`}>
                     <method.icon className="w-5 h-5" />
                     <span className="text-[10px] font-black uppercase tracking-widest">
                       {method.id}
@@ -125,15 +126,14 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                Your Message
+                {t('your_message')}
               </label>
               <textarea
                 {...register("message")}
                 rows={5}
-                placeholder="Type your message here..."
-                className={`modern-input !py-4 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${
-                  errors.message ? "!border-red-200 !bg-red-50/50" : ""
-                }`}
+                placeholder={t('type_message_placeholder')}
+                className={`modern-input !py-4 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${errors.message ? "!border-red-200 !bg-red-50/50" : ""
+                  }`}
               />
               {errors.message && (
                 <p className="text-[10px] text-red-500 font-bold flex items-center gap-1 mt-1 ml-1">
@@ -147,8 +147,7 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
           <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex gap-3">
             <Info className="w-5 h-5 text-blue-600 shrink-0" />
             <p className="text-[11px] text-blue-700 font-medium leading-relaxed">
-              Messages sent via the platform are encrypted and stored for
-              compliance.
+              {t('contact_privacy_msg')}
               {contactMethod === "Email" &&
                 " A copy will be sent to their registered email address."}
             </p>
@@ -159,7 +158,7 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
               type="button"
               onClick={onClose}
               className="flex-1 btn-modern-outline !py-3">
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
@@ -170,7 +169,7 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              {isSending ? "Sending..." : "Send Message"}
+              {isSending ? t('sending') : t('send_message')}
             </button>
           </div>
         </form>

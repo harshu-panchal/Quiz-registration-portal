@@ -1,25 +1,30 @@
 import React from "react";
 import Modal from "./Modal";
-import { 
-  CheckCircle2, 
-  AlertCircle, 
-  XCircle, 
-  Info, 
+import {
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  Info,
   HelpCircle,
-  AlertTriangle 
+  AlertTriangle
 } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
-const StatusModal = ({ 
-  isOpen, 
-  onClose, 
-  type = "info", 
-  title, 
-  message, 
-  onConfirm, 
-  confirmText = "Confirm", 
-  cancelText = "Cancel",
-  showCancel = false 
+const StatusModal = ({
+  isOpen,
+  onClose,
+  type = "info",
+  title,
+  message,
+  onConfirm,
+  confirmText,
+  cancelText,
+  showCancel = false
 }) => {
+  const { t } = useLanguage();
+  const effectiveConfirmText = confirmText || t('confirm');
+  const effectiveCancelText = cancelText || t('cancel');
+
   const getConfig = () => {
     switch (type) {
       case "success":
@@ -69,7 +74,7 @@ const StatusModal = ({
         <div className={`w-16 h-16 rounded-3xl ${config.bg} ${config.color} flex items-center justify-center`}>
           <Icon className="w-8 h-8" />
         </div>
-        
+
         <div className="space-y-2">
           <p className="text-sm text-slate-500 font-medium leading-relaxed">
             {message}
@@ -82,7 +87,7 @@ const StatusModal = ({
               onClick={onClose}
               className="flex-1 btn-modern-outline !py-2.5 text-xs font-black"
             >
-              {cancelText}
+              {effectiveCancelText}
             </button>
           )}
           <button
@@ -90,13 +95,12 @@ const StatusModal = ({
               if (onConfirm) onConfirm();
               onClose();
             }}
-            className={`flex-1 !py-2.5 text-xs font-black rounded-xl transition-all shadow-lg ${
-              type === 'error' || type === 'warning' && showCancel 
-                ? 'bg-red-600 text-white hover:bg-red-700 shadow-red-100' 
+            className={`flex-1 !py-2.5 text-xs font-black rounded-xl transition-all shadow-lg ${type === 'error' || type === 'warning' && showCancel
+                ? 'bg-red-600 text-white hover:bg-red-700 shadow-red-100'
                 : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-100'
-            }`}
+              }`}
           >
-            {confirmText}
+            {effectiveConfirmText}
           </button>
         </div>
       </div>

@@ -18,6 +18,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import AddStudentModal from "../../components/AddStudentModal";
 import QuizEditorModal from "../../components/QuizEditorModal";
@@ -32,6 +33,7 @@ import { studentService } from "../../services/studentService";
 import { handleApiError } from "../../utils/errorHandler";
 
 const AdminDashboard = () => {
+  const { t } = useLanguage();
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isQuizEditorOpen, setIsQuizEditorOpen] = useState(false);
@@ -62,7 +64,7 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [stats, setStats] = useState([
     {
-      label: "Total Students",
+      label: "total_students",
       value: "0",
       change: "0%",
       icon: Users,
@@ -70,7 +72,7 @@ const AdminDashboard = () => {
       bg: "bg-primary-50",
     },
     {
-      label: "Quizzes Sent",
+      label: "quizzes_sent",
       value: "0",
       change: "0%",
       icon: Send,
@@ -78,7 +80,7 @@ const AdminDashboard = () => {
       bg: "bg-purple-50",
     },
     {
-      label: "Pending Response",
+      label: "pending_response",
       value: "0",
       change: "0%",
       icon: Clock,
@@ -121,7 +123,7 @@ const AdminDashboard = () => {
         const d = analyticsRes.data;
         setStats([
           {
-            label: "Total Students",
+            label: "total_students",
             value: d.students?.total || "0",
             change: d.students?.change || "0%",
             icon: Users,
@@ -129,7 +131,7 @@ const AdminDashboard = () => {
             bg: "bg-primary-50",
           },
           {
-            label: "Quizzes Sent",
+            label: "quizzes_sent",
             value: d.quizzes?.sent || "0",
             change: d.quizzes?.change || "0%",
             icon: Send,
@@ -137,7 +139,7 @@ const AdminDashboard = () => {
             bg: "bg-purple-50",
           },
           {
-            label: "Pending Response",
+            label: "pending_response",
             value: d.responses?.pending || "0",
             change: d.responses?.change || "0%",
             icon: Clock,
@@ -282,10 +284,10 @@ const AdminDashboard = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-black text-slate-900">
-              Student Overview
+              {t('student_overview')}
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              Manage enrollments and quizzes.
+              {t('manage_enrollments')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -293,7 +295,7 @@ const AdminDashboard = () => {
               onClick={handleExport}
               className="flex-1 sm:flex-none btn-modern-outline !py-1.5 !px-3.5 flex items-center justify-center gap-2">
               <Download className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold">Export</span>
+              <span className="text-[11px] font-bold">{t('export')}</span>
             </button>
             <button
               onClick={() => {
@@ -302,7 +304,7 @@ const AdminDashboard = () => {
               }}
               className="flex-1 sm:flex-none btn-modern-primary !py-1.5 !px-3.5 flex items-center justify-center gap-2">
               <Plus className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold">Add Student</span>
+              <span className="text-[11px] font-bold">{t('add_student')}</span>
             </button>
           </div>
         </div>
@@ -367,13 +369,13 @@ const AdminDashboard = () => {
             className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-xs font-bold text-red-900">Failed to load dashboard data</p>
+              <p className="text-xs font-bold text-red-900">{t('failed_load_data')}</p>
               <p className="text-xs text-red-700 mt-1">{error}</p>
             </div>
             <button
               onClick={fetchDashboardData}
               className="text-xs font-bold text-red-600 hover:text-red-700 underline">
-              Retry
+              {t('retry')}
             </button>
           </motion.div>
         )}
@@ -386,7 +388,7 @@ const AdminDashboard = () => {
               className="glass-card p-4 rounded-2xl flex items-center justify-between group hover:border-primary-200 transition-all">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">
-                  {stat.label}
+                  {t(stat.label)}
                 </p>
                 <div className="flex items-baseline gap-2">
                   <h4 className="text-xl font-black text-slate-900">
@@ -417,7 +419,7 @@ const AdminDashboard = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
                 <input
                   type="text"
-                  placeholder="Search students..."
+                  placeholder={t('search_students')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="modern-input !pl-10 !py-2 bg-slate-50 border-transparent focus:bg-white w-full"
@@ -427,7 +429,7 @@ const AdminDashboard = () => {
                 onClick={handleFilterClick}
                 className="btn-modern-outline !py-2 !px-3 flex items-center justify-center gap-2">
                 <Filter className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold">Filters</span>
+                <span className="text-[11px] font-bold">{t('filters')}</span>
               </button>
             </div>
 
@@ -441,7 +443,7 @@ const AdminDashboard = () => {
                       ? "bg-primary-600 text-white shadow-sm"
                       : "bg-slate-50 text-slate-500 hover:bg-slate-100"
                       }`}>
-                    {filter}
+                    {t(filter.toLowerCase())}
                   </button>
                 ))}
               </div>
@@ -450,7 +452,7 @@ const AdminDashboard = () => {
                 onClick={() => setIsQuizEditorOpen(true)}
                 className="btn-modern-primary !py-2 !px-4 flex items-center justify-center gap-2 whitespace-nowrap">
                 <Send className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold">Send Quiz</span>
+                <span className="text-[11px] font-bold">{t('send_quiz')}</span>
               </button>
             </div>
           </div>
@@ -468,7 +470,7 @@ const AdminDashboard = () => {
                     <span className="w-5 h-5 rounded-full bg-primary-600 flex items-center justify-center text-[10px] font-black">
                       {selectedStudents.length}
                     </span>
-                    <span className="text-xs font-bold">Selected</span>
+                    <span className="text-xs font-bold">{t('selected')}</span>
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -476,19 +478,19 @@ const AdminDashboard = () => {
                       onClick={() => handleBulkAction("Send Quiz")}
                       className="flex items-center gap-2 text-xs font-black hover:text-primary-400 transition-colors">
                       <Mail className="w-4 h-4" />
-                      Send Quiz
+                      {t('send_quiz')}
                     </button>
                     <button
                       onClick={() => handleBulkAction("Activate")}
                       className="flex items-center gap-2 text-xs font-black hover:text-primary-400 transition-colors">
                       <UserCheck className="w-4 h-4" />
-                      Activate
+                      {t('activate')}
                     </button>
                     <button
                       onClick={() => handleBulkAction("Delete")}
                       className="flex items-center gap-2 text-xs font-black hover:text-red-400 transition-colors">
                       <Trash2 className="w-4 h-4" />
-                      Delete
+                      {t('delete')}
                     </button>
                   </div>
 
@@ -515,12 +517,12 @@ const AdminDashboard = () => {
                       className="w-4 h-4 rounded border-slate-300"
                     />
                   </th>
-                  <th className="px-5 py-3">Student</th>
-                  <th className="px-5 py-3">Email</th>
-                  <th className="px-5 py-3">School & Class</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">City</th>
-                  <th className="px-5 py-3 text-right">Action</th>
+                  <th className="px-5 py-3">{t('student_info')}</th>
+                  <th className="px-5 py-3">{t('email')}</th>
+                  <th className="px-5 py-3">{t('school_class')}</th>
+                  <th className="px-5 py-3">{t('status')}</th>
+                  <th className="px-5 py-3">{t('city')}</th>
+                  <th className="px-5 py-3 text-right">{t('action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -606,10 +608,10 @@ const AdminDashboard = () => {
                           <Users className="w-6 h-6" />
                         </div>
                         <p className="text-sm font-bold text-slate-900">
-                          No students found
+                          {t('no_students_found')}
                         </p>
                         <p className="text-xs text-slate-500 font-medium">
-                          Try adjusting your filters or search query.
+                          {t('adjust_filters')}
                         </p>
                       </div>
                     </td>
@@ -622,9 +624,9 @@ const AdminDashboard = () => {
           {/* Pagination */}
           <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-slate-500 font-medium order-2 sm:order-1">
-              Showing <span className="text-slate-900 font-bold">
+              {t('showing')} <span className="text-slate-900 font-bold">
                 {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)} - {Math.min(pagination.page * pagination.limit, pagination.total)}
-              </span> of{" "}
+              </span> {t('of')}{" "}
               <span className="text-slate-900 font-bold">{pagination.total}</span>
             </p>
             <div className="flex items-center gap-1.5 order-1 sm:order-2">

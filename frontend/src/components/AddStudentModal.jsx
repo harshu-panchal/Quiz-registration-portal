@@ -14,6 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useLanguage } from "../context/LanguageContext";
 
 const studentSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),
@@ -30,6 +31,7 @@ const studentSchema = z.object({
 });
 
 const AddStudentModal = ({ isOpen, onClose, student = null }) => {
+  const { t } = useLanguage();
   const {
     register,
     handleSubmit,
@@ -84,13 +86,13 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={student ? "Edit Student" : "Add New Student"}
+      title={student ? t('edit_student') : t('add_new_student')}
       maxWidth="max-w-lg">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Full Name
+              {t('full_name')}
             </label>
             <div className="relative group">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
@@ -98,9 +100,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                 {...register("name")}
                 type="text"
                 placeholder="e.g. Alex Johnson"
-                className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                  errors.name ? "border-red-500 focus:ring-red-500/10" : ""
-                }`}
+                className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.name ? "border-red-500 focus:ring-red-500/10" : ""
+                  }`}
               />
             </div>
             {errors.name && (
@@ -112,7 +113,7 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Email Address
+              {t('email_address')}
             </label>
             <div className="relative group">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
@@ -120,9 +121,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                 {...register("email")}
                 type="email"
                 placeholder="alex@example.com"
-                className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                  errors.email ? "border-red-500 focus:ring-red-500/10" : ""
-                }`}
+                className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.email ? "border-red-500 focus:ring-red-500/10" : ""
+                  }`}
               />
             </div>
             {errors.email && (
@@ -142,9 +142,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                 {...register("phone")}
                 type="tel"
                 placeholder="+91 00000 00000"
-                className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                  errors.phone ? "border-red-500 focus:ring-red-500/10" : ""
-                }`}
+                className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.phone ? "border-red-500 focus:ring-red-500/10" : ""
+                  }`}
               />
             </div>
             {errors.phone && (
@@ -165,9 +164,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                   {...register("school")}
                   type="text"
                   placeholder="e.g. St. Peters High"
-                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                    errors.school ? "border-red-500 focus:ring-red-500/10" : ""
-                  }`}
+                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.school ? "border-red-500 focus:ring-red-500/10" : ""
+                    }`}
                 />
               </div>
               {errors.school && (
@@ -187,11 +185,10 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                   {...register("studentClass")}
                   type="text"
                   placeholder="e.g. 10th Standard"
-                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                    errors.studentClass
+                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.studentClass
                       ? "border-red-500 focus:ring-red-500/10"
                       : ""
-                  }`}
+                    }`}
                 />
               </div>
               {errors.studentClass && (
@@ -214,9 +211,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                   {...register("city")}
                   type="text"
                   placeholder="City"
-                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                    errors.city ? "border-red-500 focus:ring-red-500/10" : ""
-                  }`}
+                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.city ? "border-red-500 focus:ring-red-500/10" : ""
+                    }`}
                 />
               </div>
               {errors.city && (
@@ -236,9 +232,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                   {...register("state")}
                   type="text"
                   placeholder="State"
-                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                    errors.state ? "border-red-500 focus:ring-red-500/10" : ""
-                  }`}
+                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.state ? "border-red-500 focus:ring-red-500/10" : ""
+                    }`}
                 />
               </div>
               {errors.state && (
@@ -258,9 +253,8 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
                   {...register("age")}
                   type="number"
                   placeholder="Age"
-                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                    errors.age ? "border-red-500 focus:ring-red-500/10" : ""
-                  }`}
+                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.age ? "border-red-500 focus:ring-red-500/10" : ""
+                    }`}
                 />
               </div>
               {errors.age && (
@@ -276,8 +270,7 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
           <div className="p-4 bg-primary-50 rounded-2xl border border-primary-100 flex gap-3">
             <ShieldCheck className="w-5 h-5 text-primary-600 shrink-0" />
             <p className="text-[11px] text-primary-700 font-medium leading-relaxed">
-              An invitation email will be sent to the student with their login
-              credentials and a link to their initial assessment.
+              {t('invitation_email_msg')}
             </p>
           </div>
         )}
@@ -287,10 +280,10 @@ const AddStudentModal = ({ isOpen, onClose, student = null }) => {
             type="button"
             onClick={onClose}
             className="flex-1 btn-modern-outline !py-3">
-            Cancel
+            {t('cancel')}
           </button>
           <button type="submit" className="flex-[2] btn-modern-primary !py-3">
-            {student ? "Update Student" : "Add Student"}
+            {student ? t('update_student') : t('add_student')}
           </button>
         </div>
       </form>

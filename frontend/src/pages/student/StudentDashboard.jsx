@@ -24,9 +24,11 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 import { handleApiError } from "../../utils/errorHandler";
+import { useLanguage } from "../../context/LanguageContext";
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [studentData, setStudentData] = useState(null);
@@ -100,20 +102,19 @@ const StudentDashboard = () => {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary-500/20 border border-primary-500/30 text-primary-300 text-[10px] font-black uppercase tracking-widest">
                   <ShieldCheck className="w-3 h-3" />
-                  Verified
+                  {t('verified')}
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-                  Welcome back, <br />
+                  {t('welcome_back')} <br />
                   <span className="text-primary-400">
                     {student.name.split(" ")[0]}!
                   </span>
                 </h2>
                 <p className="text-slate-400 text-sm max-w-sm font-medium">
-                  Registration{" "}
+                  {t('registration_active')}
                   <span className="text-white font-bold">
                     #{student.studentId}
                   </span>{" "}
-                  is active.
                 </p>
               </div>
 
@@ -121,13 +122,13 @@ const StudentDashboard = () => {
                 <div className="glass-card p-4 rounded-2xl text-center flex-1">
                   <p className="text-xl font-black text-white">100%</p>
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">
-                    Payment
+                    {t('payment')}
                   </p>
                 </div>
                 <div className="glass-card p-4 rounded-2xl text-center border-primary-500/30 bg-primary-500/10 flex-1">
                   <p className="text-xl font-black text-primary-400">1/1</p>
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">
-                    Quizzes
+                    {t('quizzes')}
                   </p>
                 </div>
               </div>
@@ -145,14 +146,14 @@ const StudentDashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div className="space-y-0.5">
                 <h3 className="text-lg font-black text-slate-900">
-                  Profile Details
+                  {t('profile_details')}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  Registration & academic info.
+                  {t('profile_sub')}
                 </p>
               </div>
               <button className="btn-modern-outline !py-1.5 !px-3.5 w-full sm:w-auto">
-                Edit
+                {t('edit')}
               </button>
             </div>
 
@@ -160,13 +161,13 @@ const StudentDashboard = () => {
               <div className="space-y-4">
                 {[
                   {
-                    label: "Student ID",
+                    label: t('student_id'),
                     value: student.studentId,
                     icon: ShieldCheck,
                   },
-                  { label: "Full Name", value: student.name, icon: User },
-                  { label: "Email", value: student.email, icon: FileText },
-                  { label: "Phone", value: student.phone, icon: Phone },
+                  { label: t('full_name'), value: student.name, icon: User },
+                  { label: t('email'), value: student.email, icon: FileText },
+                  { label: t('phone'), value: student.phone, icon: Phone },
                 ].map((info) => (
                   <div
                     key={info.label}
@@ -187,15 +188,15 @@ const StudentDashboard = () => {
               </div>
               <div className="space-y-4">
                 {[
-                  { label: "School", value: student.school, icon: School },
+                  { label: t('school'), value: student.school, icon: School },
                   {
-                    label: "Class",
+                    label: t('class'),
                     value: student.studentClass,
                     icon: GraduationCap,
                   },
-                  { label: "Age", value: student.age, icon: Calendar },
+                  { label: t('age'), value: student.age, icon: Calendar },
                   {
-                    label: "City",
+                    label: t('city'),
                     value: `${student.city}, ${student.state}`,
                     icon: MapPin,
                   },
@@ -219,9 +220,9 @@ const StudentDashboard = () => {
               </div>
               <div className="space-y-4">
                 {[
-                  { label: "Reg. Date", value: student.regDate, icon: Clock },
+                  { label: t('reg_date'), value: student.regDate, icon: Clock },
                   {
-                    label: "Payment",
+                    label: t('payment'),
                     value: student.paymentStatus,
                     icon: CreditCard,
                     badge: true,
@@ -238,7 +239,10 @@ const StudentDashboard = () => {
                         {info.label}
                       </p>
                       {info.badge ? (
-                        <span className="stat-badge bg-green-100 text-green-600 mt-0.5 inline-block">
+                        <span className={`stat-badge mt-0.5 inline-block px-2 py-0.5 rounded text-xs font-bold ${info.value === 'Paid' ? 'bg-green-100 text-green-600' :
+                          info.value === 'Pending' ? 'bg-yellow-100 text-yellow-600' :
+                            'bg-red-100 text-red-600'
+                          }`}>
                           {info.value}
                         </span>
                       ) : (

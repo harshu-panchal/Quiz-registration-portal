@@ -30,6 +30,8 @@ import { authService } from "../../services/authService";
 import { settingsService } from "../../services/settingsService";
 import { paymentService, loadRazorpay } from "../../services/paymentService";
 import { handleApiError } from "../../utils/errorHandler";
+import { useLanguage } from "../../context/LanguageContext";
+import LanguageToggle from "../../components/LanguageToggle";
 
 const registerSchema = z.object({
   fullName: z
@@ -57,21 +59,22 @@ const RegisterPage = () => {
   const [registrationFee, setRegistrationFee] = useState(100);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLanguage();
 
   const steps = {
     1: {
       id: 1,
-      title: "Account Setup",
+      title: t('account_setup'),
       fields: ["fullName", "email", "password"]
     },
     2: {
       id: 2,
-      title: "Personal Info",
+      title: t('personal_info'),
       fields: ["phone", "gender", "age", "school", "studentClass"]
     },
     3: {
       id: 3,
-      title: "Location & Pay",
+      title: t('location_pay'),
       fields: ["state", "city"]
     }
   };
@@ -235,12 +238,10 @@ const RegisterPage = () => {
 
             <div className="mt-16 space-y-8">
               <h1 className="text-5xl font-black tracking-tight leading-[1.1]">
-                Start your <br />
-                <span className="text-primary-400">Journey</span> here.
+                {t('start_journey')}
               </h1>
               <p className="text-slate-400 text-base max-w-xs font-medium leading-relaxed">
-                Join our community of learners and get access to exclusive
-                quizzes and tracking tools.
+                {t('join_community')}
               </p>
             </div>
           </div>
@@ -271,10 +272,10 @@ const RegisterPage = () => {
               <div className="p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
                 <CheckCircle className="w-6 h-6 text-green-400 mb-4" />
                 <p className="text-sm font-bold text-white mb-1">
-                  Instant Access
+                  {t('fast_reliable')}
                 </p>
                 <p className="text-[11px] text-slate-400 font-medium">
-                  Auto-login after pay.
+                  {t('sign_in_continue')}
                 </p>
               </div>
               <div className="p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
@@ -298,21 +299,24 @@ const RegisterPage = () => {
         <div className="p-8 lg:p-10 flex flex-col justify-center overflow-y-auto max-h-[90vh]">
           <div className="w-full space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center justify-between lg:hidden mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <Link
                   to="/"
                   className="inline-flex items-center gap-2 text-slate-400 font-bold text-xs hover:text-primary-600 transition-colors">
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  Back
+                  {t('back_to_home')}
                 </Link>
-                <Link to="/" className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/20">
-                    <GraduationCap className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-black tracking-tighter text-slate-900">
-                    EduPortal
-                  </span>
-                </Link>
+                <div className="flex items-center gap-3">
+                  <LanguageToggle />
+                  <Link to="/" className="flex items-center gap-2 lg:hidden">
+                    <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/20">
+                      <GraduationCap className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-sm font-black tracking-tighter text-slate-900">
+                      EduPortal
+                    </span>
+                  </Link>
+                </div>
               </div>
 
               {/* Stepper Header */}
@@ -341,7 +345,7 @@ const RegisterPage = () => {
                 {steps[currentStep].title}
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Step {currentStep} of 3
+                {t('step')} {currentStep} {t('of')} 3
               </p>
             </div>
 
@@ -370,7 +374,7 @@ const RegisterPage = () => {
                 >
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Full Name
+                      {t('full_name')}
                     </label>
                     <div className="relative group">
                       <User
@@ -397,7 +401,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Email Address
+                      {t('email_address')}
                     </label>
                     <div className="relative group">
                       <Mail
@@ -424,7 +428,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Password
+                      {t('password')}
                     </label>
                     <div className="relative group">
                       <Lock
@@ -471,7 +475,7 @@ const RegisterPage = () => {
                 >
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Phone Number
+                      {t('phone_number')}
                     </label>
                     <div className="relative group">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -500,7 +504,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Age
+                      {t('age')}
                     </label>
                     <div className="relative group">
                       <Calendar
@@ -527,7 +531,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Gender
+                      {t('gender')}
                     </label>
                     <div className="relative group">
                       <User
@@ -540,10 +544,10 @@ const RegisterPage = () => {
                         className={`modern-input !pl-12 !py-2.5 ${errors.gender ? "!border-red-200 !bg-red-50/50" : "bg-white"}`}
                         {...register("gender")}
                       >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="">{t('select_gender')}</option>
+                        <option value="Male">{t('male')}</option>
+                        <option value="Female">{t('female')}</option>
+                        <option value="Other">{t('other')}</option>
                       </select>
                     </div>
                     {errors.gender && (
@@ -556,7 +560,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      School Name
+                      {t('school_name')}
                     </label>
                     <div className="relative group">
                       <School
@@ -583,7 +587,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Class / Grade
+                      {t('class_grade')}
                     </label>
                     <div className="relative group">
                       <GraduationCap
@@ -599,7 +603,7 @@ const RegisterPage = () => {
                           }`}
                         {...register("studentClass")}
                       >
-                        <option value="">Select Grade</option>
+                        <option value="">{t('select_grade')}</option>
                         {["1st Grade", "2nd Grade", "3rd Grade", "4th Grade", "5th Grade", "6th Grade", "7th Grade", "8th Grade", "9th Grade", "10th Grade", "11th Grade", "12th Grade", "Other"].map((grade) => (
                           <option key={grade} value={grade}>{grade}</option>
                         ))}
@@ -625,7 +629,7 @@ const RegisterPage = () => {
                 >
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      State
+                      {t('state')}
                     </label>
                     <div className="relative group">
                       <MapPin
@@ -643,7 +647,7 @@ const RegisterPage = () => {
                           }
                         })}
                       >
-                        <option value="">Select State</option>
+                        <option value="">{t('select_state')}</option>
                         {Object.keys(indianStatesCities).sort().map((state) => (
                           <option key={state} value={state}>{state}</option>
                         ))}
@@ -659,7 +663,7 @@ const RegisterPage = () => {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      City
+                      {t('city')}
                     </label>
                     <div className="relative group">
                       <MapPin
@@ -674,7 +678,7 @@ const RegisterPage = () => {
                         disabled={!selectedState}
                         {...register("city")}
                       >
-                        <option value="">{selectedState ? "Select City" : "Select State First"}</option>
+                        <option value="">{selectedState ? t('select_city') : "Select State First"}</option>
                         {selectedState && indianStatesCities[selectedState]?.sort().map((city) => (
                           <option key={city} value={city}>{city}</option>
                         ))}
@@ -691,7 +695,7 @@ const RegisterPage = () => {
                   <div className="p-4 bg-primary-50 rounded-2xl border border-primary-100 flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-                        Registration Fee
+                        {t('registration_fee')}
                       </p>
                       <p className="text-lg font-black text-primary-600 leading-none">
                         ₹{registrationFee}
@@ -722,7 +726,7 @@ const RegisterPage = () => {
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 transform group-hover:-translate-x-1 transition-transform">
                       <ArrowRight className="w-5 h-5" />
                     </div>
-                    <span className="relative z-10">Next Step</span>
+                    <span className="relative z-10">{t('next_step')}</span>
                   </button>
                 ) : (
                   <button
@@ -733,14 +737,14 @@ const RegisterPage = () => {
                     {loading ? (
                       <div className="flex items-center justify-center gap-2">
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Creating Account...</span>
+                        <span>{t('creating_account')}</span>
                       </div>
                     ) : (
                       <>
                         <div className="absolute left-6 top-1/2 -translate-y-1/2 transform group-hover:-translate-x-1 transition-transform">
                           <ArrowRight className="w-5 h-5" />
                         </div>
-                        <span className="relative z-10">Pay & Register</span>
+                        <span className="relative z-10">{t('pay_register')}</span>
                       </>
                     )}
                   </button>
@@ -750,11 +754,11 @@ const RegisterPage = () => {
 
             <div className="pt-2 text-center">
               <p className="text-xs text-slate-500 font-medium">
-                Already have an account?{" "}
+                {t('already_have_account')}{" "}
                 <Link
                   to="/login"
                   className="text-primary-600 font-black hover:text-primary-700 transition-colors">
-                  Sign in
+                  {t('sign_in_link')}
                 </Link>
               </p>
             </div>

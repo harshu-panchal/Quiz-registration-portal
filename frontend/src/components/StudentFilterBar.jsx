@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Filter, X, ChevronDown, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "../context/LanguageContext";
 
 const FilterDropdown = ({
     label,
@@ -9,6 +10,7 @@ const FilterDropdown = ({
     onChange,
     width = "w-64",
 }) => {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOption = (option) => {
@@ -58,15 +60,15 @@ const FilterDropdown = ({
                     >
                         <div className="p-2 max-h-64 overflow-y-auto custom-scrollbar">
                             {options.length === 0 ? (
-                                <div className="p-3 text-center text-xs text-slate-400 font-medium">No options available</div>
+                                <div className="p-3 text-center text-xs text-slate-400 font-medium">{t('no_options_available')}</div>
                             ) : (
                                 options.map((option) => (
                                     <button
                                         key={option}
                                         onClick={() => toggleOption(option)}
                                         className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${selected.includes(option)
-                                                ? "bg-primary-50 text-primary-700 font-bold"
-                                                : "text-slate-600 hover:bg-slate-50"
+                                            ? "bg-primary-50 text-primary-700 font-bold"
+                                            : "text-slate-600 hover:bg-slate-50"
                                             }`}
                                     >
                                         <span className="truncate">{option}</span>
@@ -88,6 +90,7 @@ const StudentFilterBar = ({
     onFilterChange,
     onClearFilters,
 }) => {
+    const { t } = useLanguage();
     const hasActiveFilters =
         activeFilters.school.length > 0 ||
         activeFilters.class.length > 0 ||
@@ -98,11 +101,11 @@ const StudentFilterBar = ({
             <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 mr-2 text-slate-400">
                     <Filter className="w-4 h-4" />
-                    <span className="text-xs font-black uppercase tracking-widest">Filters</span>
+                    <span className="text-xs font-black uppercase tracking-widest">{t('filters')}</span>
                 </div>
 
                 <FilterDropdown
-                    label="School"
+                    label={t('school')}
                     options={filterOptions.schools}
                     selected={activeFilters.school}
                     onChange={(val) => onFilterChange("school", val)}
@@ -110,7 +113,7 @@ const StudentFilterBar = ({
                 />
 
                 <FilterDropdown
-                    label="Class"
+                    label={t('class')}
                     options={filterOptions.classes}
                     selected={activeFilters.class}
                     onChange={(val) => onFilterChange("class", val)}
@@ -125,7 +128,7 @@ const StudentFilterBar = ({
                         className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 transition-colors ml-auto sm:ml-0"
                     >
                         <X className="w-3.5 h-3.5" />
-                        Clear
+                        {t('clear')}
                     </button>
                 )}
             </div>

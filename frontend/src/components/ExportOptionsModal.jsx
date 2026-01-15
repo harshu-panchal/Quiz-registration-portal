@@ -13,6 +13,7 @@ import StatusModal from "./StatusModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useLanguage } from "../context/LanguageContext";
 
 const exportSchema = z.object({
   format: z.enum(["CSV", "PDF"]),
@@ -20,6 +21,7 @@ const exportSchema = z.object({
 });
 
 const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
+  const { t } = useLanguage();
   const [isExporting, setIsExporting] = useState(false);
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
@@ -55,8 +57,8 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
       setStatusModal({
         isOpen: true,
         type: "success",
-        title: "Export Complete",
-        message: `Your data has been successfully exported as ${data.format} for the period: ${data.range}. The download should start automatically.`,
+        title: t('export_complete'),
+        message: t('export_success_msg'),
       });
       reset();
     }, 2000);
@@ -72,18 +74,18 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title={title}
+        title={title === "Export Data" ? t('export_data') : title}
         maxWidth="max-w-md">
         <form onSubmit={handleSubmit(handleExport)} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                File Format
+                {t('file_format')}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { id: "CSV", icon: Table, label: "Comma Separated" },
-                  { id: "PDF", icon: FileText, label: "Document Format" },
+                  { id: "CSV", icon: Table, label: t('comma_separated') },
+                  { id: "PDF", icon: FileText, label: t('document_format') },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -91,11 +93,10 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
                     onClick={() =>
                       setValue("format", item.id, { shouldValidate: true })
                     }
-                    className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-left ${
-                      format === item.id
-                        ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
-                        : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
-                    }`}>
+                    className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-left ${format === item.id
+                      ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
+                      : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
+                      }`}>
                     <item.icon className="w-5 h-5 shrink-0" />
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">
@@ -118,31 +119,34 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                Date Range
+                {t('date_range')}
               </label>
               <div className="grid grid-cols-1 gap-2">
-                {["All Time", "This Month", "Last 30 Days", "Custom Range"].map(
-                  (item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() =>
-                        setValue("range", item, { shouldValidate: true })
-                      }
-                      className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${
-                        range === item
-                          ? "bg-slate-50 border-primary-200 text-primary-600 font-bold"
-                          : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50"
+                {[
+                  { value: "All Time", label: t('all_time') },
+                  { value: "This Month", label: t('this_month') },
+                  { value: "Last 30 Days", label: t('last_30_days') },
+                  { value: "Custom Range", label: t('custom_range') },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() =>
+                      setValue("range", item.value, { shouldValidate: true })
+                    }
+                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${range === item.value
+                        ? "bg-slate-50 border-primary-200 text-primary-600 font-bold"
+                        : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50"
                       }`}>
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-xs">{item}</span>
-                      </div>
-                      {range === item && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary-600" />
-                      )}
-                    </button>
-                  )
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-xs">{item.label}</span>
+                    </div>
+                    {range === item.value && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary-600" />
+                    )}
+                  </button>
+                )
                 )}
               </div>
               {errors.range && (
@@ -157,8 +161,7 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex gap-3">
             <Settings2 className="w-5 h-5 text-slate-400 shrink-0" />
             <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-              Advanced filters and column selection can be managed in the system
-              settings.
+              {t('export_settings_msg')}
             </p>
           </div>
 
@@ -167,7 +170,7 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
               type="button"
               onClick={onClose}
               className="flex-1 btn-modern-outline !py-3">
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
@@ -178,7 +181,7 @@ const ExportOptionsModal = ({ isOpen, onClose, title = "Export Data" }) => {
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {isExporting ? "Processing..." : "Start Export"}
+              {isExporting ? t('processing') : t('start_export')}
             </button>
           </div>
         </form>

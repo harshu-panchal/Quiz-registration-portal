@@ -16,12 +16,14 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import { motion } from "framer-motion";
 import QuizEditorModal from "../../components/QuizEditorModal";
 import StatusModal from "../../components/StatusModal";
 import QuizActionsModal from "../../components/QuizActionsModal";
 
 const QuizManagement = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("Active");
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -56,9 +58,9 @@ const QuizManagement = () => {
         setStatusModal({
           isOpen: true,
           type: "success",
-          title: "Link Copied",
+          title: t('link_copied'),
           message:
-            "The quiz link has been successfully copied to your clipboard.",
+            t('link_copied_msg'),
           showCancel: false,
         });
         break;
@@ -73,10 +75,10 @@ const QuizManagement = () => {
         setStatusModal({
           isOpen: true,
           type: "warning",
-          title: "Delete Quiz",
+          title: t('delete_quiz'),
           message: `Are you sure you want to delete "${quiz.title}"? This will remove all associated responses.`,
           showCancel: true,
-          confirmText: "Delete",
+          confirmText: t('delete'),
           onConfirm: () => console.log(`Deleted quiz: ${quiz.id}`),
         });
         break;
@@ -170,17 +172,17 @@ const QuizManagement = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-              Quiz Management
+              {t('quiz_management')}
             </h2>
             <p className="text-sm text-slate-500 font-medium mt-1">
-              Create, edit and track performance of student assessments.
+              {t('quiz_management_desc')}
             </p>
           </div>
           <button
             onClick={handleCreate}
             className="btn-modern-primary !py-2.5 !px-5 flex items-center justify-center gap-2">
             <Plus className="w-5 h-5" />
-            <span className="text-xs font-bold">Create New Quiz</span>
+            <span className="text-xs font-bold">{t('create_new_quiz')}</span>
           </button>
         </div>
 
@@ -210,12 +212,11 @@ const QuizManagement = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${
-                  activeTab === tab
-                    ? "bg-white text-primary-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}>
-                {tab}
+                className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === tab
+                  ? "bg-white text-primary-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+                  }`}>
+                {t(tab.toLowerCase())}
               </button>
             ))}
           </div>
@@ -223,7 +224,7 @@ const QuizManagement = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
             <input
               type="text"
-              placeholder="Search quizzes by title or category..."
+              placeholder={t('search_quizzes_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="modern-input !pl-12 !py-2.5 bg-white border-slate-100 shadow-sm w-full"
@@ -264,7 +265,7 @@ const QuizManagement = () => {
                     <div className="space-y-1">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                         <Clock className="w-3 h-3" />
-                        Duration
+                        {t('duration')}
                       </p>
                       <p className="text-xs font-bold text-slate-700">
                         {quiz.timeLimit}
@@ -273,7 +274,7 @@ const QuizManagement = () => {
                     <div className="space-y-1">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                         <Users className="w-3 h-3" />
-                        Responses
+                        {t('responses')}
                       </p>
                       <p className="text-xs font-bold text-slate-700">
                         {quiz.responses}
@@ -285,7 +286,7 @@ const QuizManagement = () => {
                 <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
                     <Calendar className="w-3 h-3" />
-                    Modified {quiz.lastModified}
+                    {t('modified')} {quiz.lastModified}
                   </div>
                   <button
                     onClick={() => {
@@ -305,11 +306,10 @@ const QuizManagement = () => {
                 <BookOpen className="w-10 h-10" />
               </div>
               <h3 className="text-lg font-black text-slate-900">
-                No quizzes found
+                {t('no_quizzes_found')}
               </h3>
               <p className="text-sm text-slate-500 font-medium mt-1 max-w-xs">
-                We couldn't find any quizzes matching your search or filter
-                criteria.
+                {t('no_quizzes_desc')}
               </p>
               <button
                 onClick={() => {
@@ -317,7 +317,7 @@ const QuizManagement = () => {
                   setActiveTab("Active");
                 }}
                 className="mt-6 text-xs font-black text-primary-600 hover:text-primary-700 uppercase tracking-widest">
-                Clear all filters
+                {t('clear_all_filters')}
               </button>
             </div>
           )}
@@ -330,10 +330,10 @@ const QuizManagement = () => {
               <Plus className="w-8 h-8" />
             </div>
             <p className="font-black text-sm uppercase tracking-widest">
-              Add New Quiz
+              {t('add_new_quiz_card')}
             </p>
             <p className="text-xs font-medium mt-1">
-              Start from scratch or use a template
+              {t('start_scratch_desc')}
             </p>
           </button>
         </div>
@@ -342,10 +342,9 @@ const QuizManagement = () => {
         <div className="p-6 rounded-3xl bg-primary-600 text-white relative overflow-hidden shadow-xl shadow-primary-100">
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center md:text-left">
-              <h4 className="text-lg font-black">Google Forms Integration</h4>
+              <h4 className="text-lg font-black">{t('google_forms_integration')}</h4>
               <p className="text-primary-100 text-xs font-medium max-w-md">
-                You can easily sync your external assessments with EduPortal.
-                Just provide the form link and we'll handle the tracking.
+                {t('integration_desc')}
               </p>
             </div>
             <button
@@ -353,14 +352,14 @@ const QuizManagement = () => {
                 setStatusModal({
                   isOpen: true,
                   type: "info",
-                  title: "Integration Guide",
+                  title: t('integration_guide'),
                   message:
-                    "Our integration guide is being updated. You will be notified once it's available.",
+                    t('integration_guide_msg'),
                   showCancel: false,
                 })
               }
               className="px-6 py-2.5 rounded-xl bg-white text-primary-600 font-black text-xs hover:bg-primary-50 transition-all whitespace-nowrap">
-              Learn How it Works
+              {t('learn_how_it_works')}
             </button>
           </div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>

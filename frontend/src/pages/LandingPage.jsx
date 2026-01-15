@@ -14,8 +14,11 @@ import {
   Users,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+import LanguageToggle from "../components/LanguageToggle";
 
 const LandingPage = () => {
+  const { t } = useLanguage();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -38,29 +41,29 @@ const LandingPage = () => {
 
   const features = [
     {
-      title: "Performance Tracking",
-      desc: "Real-time analytics for academic growth.",
+      titleKey: "performance_tracking",
+      descKey: "performance_tracking_desc",
       icon: BarChart3,
       color: "bg-blue-50 text-blue-600",
       glow: "group-hover:shadow-blue-500/20",
     },
     {
-      title: "Smart Scheduling",
-      desc: "Dynamic timetable management.",
+      titleKey: "smart_scheduling",
+      descKey: "smart_scheduling_desc",
       icon: Calendar,
       color: "bg-indigo-50 text-indigo-600",
       glow: "group-hover:shadow-indigo-500/20",
     },
     {
-      title: "Instant Updates",
-      desc: "Latest campus news and alerts.",
+      titleKey: "instant_updates",
+      descKey: "instant_updates_desc",
       icon: Newspaper,
       color: "bg-emerald-50 text-emerald-600",
       glow: "group-hover:shadow-emerald-500/20",
     },
     {
-      title: "Secure Access",
-      desc: "Advanced security for your data.",
+      titleKey: "secure_access",
+      descKey: "secure_access_desc",
       icon: ShieldCheck,
       color: "bg-amber-50 text-amber-600",
       glow: "group-hover:shadow-amber-500/20",
@@ -108,16 +111,17 @@ const LandingPage = () => {
             <Link
               to="#"
               className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary-600 transition-colors">
-              Resources
+              {t('resources')}
             </Link>
             <Link
               to="#"
               className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary-600 transition-colors">
-              Support
+              {t('support')}
             </Link>
           </div>
+          <LanguageToggle />
           <Link to="/login" className="btn-modern-primary !py-1.5 !px-4">
-            Portal Login
+            {t('portal_login')}
           </Link>
         </div>
       </motion.nav>
@@ -135,7 +139,7 @@ const LandingPage = () => {
             className="inline-flex items-center gap-2 px-3 py-1 bg-primary-50 rounded-full border border-primary-100 mb-2 cursor-default">
             <Zap className="w-3 h-3 text-primary-600 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-widest text-primary-700">
-              New Academic Year 2024
+              {t('new_academic_year')}
             </span>
           </motion.div>
           <motion.h1
@@ -149,7 +153,7 @@ const LandingPage = () => {
               delay: 2, // Start after initial entrance animations
             }}
             className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-            {"Streamlined Academic ".split("").map((char, index) => (
+            {t('streamlined_academic').split("").map((char, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -163,6 +167,7 @@ const LandingPage = () => {
                 {char === " " ? "\u00A0" : char}
               </motion.span>
             ))}
+            {" "}
             <motion.span
               initial={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -173,12 +178,11 @@ const LandingPage = () => {
                 stiffness: 100,
               }}
               className="text-primary-600 inline-block">
-              Management.
+              {t('management')}
             </motion.span>
           </motion.h1>
           <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-md mx-auto">
-            A professional ecosystem for students and faculty to manage, track,
-            and excel in their academic journey.
+            {t('hero_desc')}
           </p>
         </motion.div>
 
@@ -193,7 +197,7 @@ const LandingPage = () => {
             <div className="space-y-6 order-2 md:order-1">
               {[features[0], features[2]].map((feature, idx) => (
                 <motion.div
-                  key={feature.title}
+                  key={feature.titleKey}
                   variants={itemVariants}
                   whileHover={{
                     y: -5,
@@ -209,12 +213,12 @@ const LandingPage = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-xs font-black text-slate-900 uppercase tracking-tight">
-                          {feature.title}
+                          {t(feature.titleKey)}
                         </h3>
                         <Sparkles className="w-3 h-3 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <p className="text-[11px] text-slate-500 font-medium leading-relaxed group-hover:text-slate-600 transition-colors">
-                        {feature.desc}
+                        {t(feature.descKey)}
                       </p>
                     </div>
                   </div>
@@ -264,7 +268,7 @@ const LandingPage = () => {
                       <LayoutDashboard className="w-6 h-6 text-primary-400" />
                     </motion.div>
                     <span className="text-[10px] font-black uppercase tracking-widest">
-                      Enter Portal
+                      {t('enter_portal')}
                     </span>
 
                     {/* Hover Shine Effect */}
@@ -283,7 +287,7 @@ const LandingPage = () => {
             <div className="space-y-6 order-3">
               {[features[1], features[3]].map((feature, idx) => (
                 <motion.div
-                  key={feature.title}
+                  key={feature.titleKey}
                   variants={itemVariants}
                   whileHover={{
                     y: -5,
@@ -299,12 +303,12 @@ const LandingPage = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-xs font-black text-slate-900 uppercase tracking-tight">
-                          {feature.title}
+                          {t(feature.titleKey)}
                         </h3>
                         <Sparkles className="w-3 h-3 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <p className="text-[11px] text-slate-500 font-medium leading-relaxed group-hover:text-slate-600 transition-colors">
-                        {feature.desc}
+                        {t(feature.descKey)}
                       </p>
                     </div>
                   </div>

@@ -13,6 +13,7 @@ import StatusModal from "./StatusModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useLanguage } from "../context/LanguageContext";
 
 const reportSchema = z.object({
   reportType: z.enum(["Full Performance", "Recent Progress", "Brief Summary"]),
@@ -20,6 +21,7 @@ const reportSchema = z.object({
 });
 
 const ReportOptionsModal = ({ isOpen, onClose, student }) => {
+  const { t } = useLanguage();
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
@@ -57,8 +59,10 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
       setStatusModal({
         isOpen: true,
         type: "success",
-        title: "Report Ready",
-        message: `The ${data.reportType} report for ${student.name} has been generated successfully.`,
+        isOpen: true,
+        type: "success",
+        title: t('report_ready'),
+        message: t('report_generated_msg'),
       });
       reset();
     }, 2000);
@@ -74,29 +78,32 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title="Generate Performance Report"
+        title={t('generate_performance_report')}
         maxWidth="max-w-md">
         <form onSubmit={handleSubmit(handleGenerate)} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                Report Type
+                {t('report_type')}
               </label>
               <div className="space-y-2">
                 {[
                   {
                     id: "Full Performance",
-                    desc: "Comprehensive analysis of all quizzes",
+                    label: t('full_performance'),
+                    desc: t('full_performance_desc'),
                     icon: BarChart3,
                   },
                   {
                     id: "Recent Progress",
-                    desc: "Performance trends over the last 30 days",
+                    label: t('recent_progress'),
+                    desc: t('recent_progress_desc'),
                     icon: PieChart,
                   },
                   {
                     id: "Brief Summary",
-                    desc: "One-page executive overview",
+                    label: t('brief_summary'),
+                    desc: t('brief_summary_desc'),
                     icon: FileText,
                   },
                 ].map((type) => (
@@ -106,22 +113,20 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
                     onClick={() =>
                       setValue("reportType", type.id, { shouldValidate: true })
                     }
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
-                      reportType === type.id
-                        ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
-                        : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
-                    }`}>
-                    <div
-                      className={`p-2 rounded-xl ${
-                        reportType === type.id
-                          ? "bg-white shadow-sm"
-                          : "bg-slate-50"
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${reportType === type.id
+                      ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
+                      : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
                       }`}>
+                    <div
+                      className={`p-2 rounded-xl ${reportType === type.id
+                        ? "bg-white shadow-sm"
+                        : "bg-slate-50"
+                        }`}>
                       <type.icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-black uppercase tracking-wide leading-none mb-1">
-                        {type.id}
+                        {type.label}
                       </p>
                       <p className="text-[10px] font-medium opacity-70">
                         {type.desc}
@@ -146,23 +151,21 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
                 <PieChart className="w-5 h-5 text-slate-400" />
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-widest text-slate-700">
-                    Include Visual Charts
+                    {t('include_visual_charts')}
                   </p>
                   <p className="text-[10px] text-slate-500 font-medium">
-                    Generate visual growth graphs
+                    {t('generate_visual_graphs')}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setValue("includeCharts", !includeCharts)}
-                className={`w-10 h-6 rounded-full transition-all relative ${
-                  includeCharts ? "bg-primary-600" : "bg-slate-300"
-                }`}>
+                className={`w-10 h-6 rounded-full transition-all relative ${includeCharts ? "bg-primary-600" : "bg-slate-300"
+                  }`}>
                 <div
-                  className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
-                    includeCharts ? "left-5" : "left-1"
-                  }`}
+                  className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${includeCharts ? "left-5" : "left-1"
+                    }`}
                 />
               </button>
             </div>
@@ -171,8 +174,7 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
           <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex gap-3">
             <Info className="w-5 h-5 text-blue-600 shrink-0" />
             <p className="text-[11px] text-blue-700 font-medium leading-relaxed">
-              Reports are generated as high-quality PDFs and stored in the
-              student's cloud directory.
+              {t('report_generation_msg')}
             </p>
           </div>
 
@@ -181,7 +183,7 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
               type="button"
               onClick={onClose}
               className="flex-1 btn-modern-outline !py-3">
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
@@ -192,7 +194,7 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {isGenerating ? "Generating..." : "Generate PDF"}
+              {isGenerating ? t('generating') : t('generate_pdf')}
             </button>
           </div>
         </form>

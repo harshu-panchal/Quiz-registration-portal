@@ -17,8 +17,10 @@ import {
   Phone,
   User,
 } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
 const StudentDetailsModal = ({ isOpen, onClose, student }) => {
+  const { t } = useLanguage();
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [statusModal, setStatusModal] = useState({
@@ -55,7 +57,9 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Student Profile"
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('student_profile')}
       maxWidth="max-w-2xl">
       <div className="space-y-8">
         {/* Profile Header */}
@@ -85,7 +89,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
               </span>
               <span className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
                 <Calendar className="w-3 h-3 text-primary-600" />
-                Joined {student.joinDate || "Oct 2023"}
+                {t('joined')} {student.joinDate || "Oct 2023"}
               </span>
             </div>
           </div>
@@ -95,7 +99,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-              Academic Details
+              {t('academic_details')}
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-3 text-slate-600">
@@ -115,7 +119,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-              Personal & Contact
+              {t('personal_contact')}
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-3 text-slate-600">
@@ -127,7 +131,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
               <div className="flex items-center gap-3 text-slate-600">
                 <User className="w-4 h-4 text-primary-500" />
                 <span className="text-xs font-bold">
-                  {student.age ? `${student.age} Years Old` : "N/A"}
+                  {student.age ? `${student.age} ${t('years_old')}` : "N/A"}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-slate-600">
@@ -145,7 +149,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="glass-card p-4 rounded-2xl border border-slate-100 bg-white shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
-              Avg Score
+              {t('avg_score')}
             </p>
             <div className="flex items-baseline gap-2">
               <h4 className="text-xl font-black text-slate-900">84.7%</h4>
@@ -156,13 +160,13 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
           </div>
           <div className="glass-card p-4 rounded-2xl border border-slate-100 bg-white shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
-              Quizzes Done
+              {t('quizzes_done')}
             </p>
             <h4 className="text-xl font-black text-slate-900">12</h4>
           </div>
           <div className="glass-card p-4 rounded-2xl border border-slate-100 bg-white shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
-              Consistency
+              {t('consistency')}
             </p>
             <div className="flex items-center gap-2">
               <h4 className="text-xl font-black text-slate-900">92%</h4>
@@ -177,7 +181,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">
-              Recent Activity
+              {t('recent_activity')}
             </h4>
             <button
               onClick={() =>
@@ -189,7 +193,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
                 })
               }
               className="text-[11px] font-black text-primary-600 hover:underline">
-              View All
+              {t('view_all')}
             </button>
           </div>
           <div className="space-y-3">
@@ -215,11 +219,10 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
                     {quiz.score}
                   </p>
                   <span
-                    className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
-                      quiz.status === "Passed"
+                    className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${quiz.status === "Passed"
                         ? "bg-green-100 text-green-600"
                         : "bg-orange-100 text-orange-600"
-                    }`}>
+                      }`}>
                     {quiz.status}
                   </span>
                 </div>
@@ -231,13 +234,14 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
         <div className="flex gap-3 pt-4 border-t border-slate-100">
           <button
             onClick={() => setIsReportOpen(true)}
+            onClick={() => setIsReportOpen(true)}
             className="flex-1 btn-modern-outline !py-3 !text-xs font-black">
-            Generate Report
+            {t('generate_report')}
           </button>
           <button
             onClick={() => setIsContactOpen(true)}
             className="flex-1 btn-modern-primary !py-3 !text-xs font-black">
-            Contact Student
+            {t('contact_student')}
           </button>
         </div>
 

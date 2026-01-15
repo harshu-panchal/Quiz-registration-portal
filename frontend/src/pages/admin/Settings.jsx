@@ -25,6 +25,7 @@ import {
   X,
   BookOpen
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import { settingsService } from "../../services/settingsService";
 
 // ... schemas remain same ...
@@ -51,6 +52,7 @@ const passwordSchema = z.object({
 });
 
 const Settings = () => {
+  const { t } = useLanguage();
   const { user, login } = useAuth();
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("Profile");
@@ -347,10 +349,10 @@ const Settings = () => {
         {/* Header */}
         <div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Admin Settings
+            {t('admin_settings')}
           </h2>
           <p className="text-sm text-slate-500 font-medium mt-1">
-            Configure your account and platform preferences.
+            {t('configure_account')}
           </p>
         </div>
 
@@ -366,7 +368,7 @@ const Settings = () => {
                   : "text-slate-500 hover:bg-slate-100"
                   }`}>
                 <tab.icon className="w-4.5 h-4.5" />
-                {tab.id}
+                {t(tab.id.toLowerCase())}
               </button>
             ))}
             <div className="pt-4 mt-4 border-t border-slate-100">
@@ -374,7 +376,7 @@ const Settings = () => {
                 onClick={handleSignOut}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all">
                 <LogOut className="w-4.5 h-4.5" />
-                Sign Out
+                {t('sign_out')}
               </button>
             </div>
           </div>
@@ -392,7 +394,7 @@ const Settings = () => {
                   {/* Profile Section */}
                   <div className="glass-card rounded-3xl p-8 border border-slate-100 shadow-sm">
                     <h3 className="text-lg font-black text-slate-900 mb-6">
-                      Profile Information
+                      {t('profile_information')}
                     </h3>
 
                     <div className="flex items-center gap-6 mb-8">
@@ -425,7 +427,7 @@ const Settings = () => {
                         <div className="flex items-center gap-1.5 text-green-600 mt-2">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span className="text-[10px] font-black uppercase tracking-widest">
-                            Verified Account
+                            {t('verified_account')}
                           </span>
                         </div>
                       </div>
@@ -435,7 +437,7 @@ const Settings = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                            Full Name
+                            {t('full_name')}
                           </label>
                           <div className="relative group">
                             <User
@@ -462,7 +464,7 @@ const Settings = () => {
                         </div>
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                            Email Address
+                            {t('email_address')}
                           </label>
                           <div className="relative group">
                             <Mail
@@ -493,7 +495,7 @@ const Settings = () => {
                         <button
                           type="submit"
                           className="btn-modern-primary !py-2.5 !px-6 text-xs font-black">
-                          Save Changes
+                          {t('save_changes')}
                         </button>
                       </div>
                     </form>
@@ -502,12 +504,12 @@ const Settings = () => {
                   {/* Public Details */}
                   <div className="glass-card rounded-3xl p-8 border border-slate-100 shadow-sm">
                     <h3 className="text-lg font-black text-slate-900 mb-6">
-                      Public Bio
+                      {t('public_bio')}
                     </h3>
                     <div className="space-y-1.5">
                       <textarea
                         {...registerProfile("bio")}
-                        placeholder="Tell students about yourself..."
+                        placeholder={t('bio_placeholder')}
                         rows={4}
                         className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${profileErrors.bio
                           ? "!border-red-200 !bg-red-50/50"
@@ -525,7 +527,7 @@ const Settings = () => {
                       <button
                         onClick={handleCancel}
                         className="btn-modern-outline !py-2.5 !px-6 text-xs font-black">
-                        Cancel
+                        {t('cancel')}
                       </button>
                     </div>
                   </div>
@@ -543,7 +545,7 @@ const Settings = () => {
                   className="space-y-6">
                   <div className="glass-card rounded-3xl p-8 border border-slate-100 shadow-sm">
                     <h3 className="text-lg font-black text-slate-900 mb-6">
-                      General Platform Settings
+                      {t('general_platform')}
                     </h3>
 
                     <form
@@ -551,7 +553,7 @@ const Settings = () => {
                       className="space-y-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                          Platform Name
+                          {t('platform_name')}
                         </label>
                         <input
                           type="text"
@@ -571,7 +573,7 @@ const Settings = () => {
 
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                          Registration Fee (₹)
+                          {t('registration_fee')} (₹)
                         </label>
                         <div className="relative group">
                           <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
@@ -593,7 +595,7 @@ const Settings = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                            Default Language
+                            {t('default_language')}
                           </label>
                           <select
                             value={platformSettings.language}
@@ -612,7 +614,7 @@ const Settings = () => {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                            System Theme
+                            {t('system_theme')}
                           </label>
                           <select
                             value={platformSettings.theme}
@@ -637,10 +639,10 @@ const Settings = () => {
                           </div>
                           <div>
                             <p className="text-sm font-black text-slate-900">
-                              Maintenance Mode
+                              {t('maintenance_mode')}
                             </p>
                             <p className="text-[11px] text-slate-500 font-medium">
-                              Take the platform offline for updates.
+                              {t('maintenance_desc')}
                             </p>
                           </div>
                         </div>
@@ -670,7 +672,7 @@ const Settings = () => {
                         <button
                           type="submit"
                           className="btn-modern-primary !py-2.5 !px-8 text-xs font-black">
-                          Update Platform
+                          {t('update_platform')}
                         </button>
                       </div>
                     </form>
@@ -687,23 +689,23 @@ const Settings = () => {
                   className="space-y-6">
                   <div className="glass-card rounded-3xl p-8 border border-slate-100 shadow-sm">
                     <h3 className="text-lg font-black text-slate-900 mb-6">
-                      Data Management
+                      {t('data_management')}
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                       {[
                         {
-                          label: "Student Records",
+                          label: t('student_records'),
                           type: "Students",
                           icon: User,
                         },
                         {
-                          label: "Quiz Analytics",
+                          label: t('quiz_analytics'),
                           type: "Quizzes",
                           icon: BookOpen,
                         },
-                        { label: "System Logs", type: "Logs", icon: Database },
-                        { label: "Full Backup", type: "Full", icon: Shield },
+                        { label: t('system_logs'), type: "Logs", icon: Database },
+                        { label: t('full_backup'), type: "Full", icon: Shield },
                       ].map((item) => (
                         <button
                           key={item.label}
@@ -717,7 +719,7 @@ const Settings = () => {
                               {item.label}
                             </p>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">
-                              Export .CSV
+                              {t('export_csv')}
                             </p>
                           </div>
                         </button>
@@ -731,17 +733,17 @@ const Settings = () => {
                         </div>
                         <div>
                           <p className="text-sm font-black text-slate-900">
-                            System Cache
+                            {t('system_cache')}
                           </p>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            Current size: 124.5 MB
+                            {t('current_size')}: 124.5 MB
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={handleClearCache}
                         className="px-6 py-2 rounded-xl bg-white text-blue-600 text-xs font-black shadow-sm hover:bg-blue-50 transition-all">
-                        Clear Cache
+                        {t('clear_cache')}
                       </button>
                     </div>
                   </div>
@@ -757,7 +759,7 @@ const Settings = () => {
                   className="space-y-6">
                   <div className="glass-card rounded-3xl p-8 border border-slate-100 shadow-sm">
                     <h3 className="text-lg font-black text-slate-900 mb-6">
-                      Password & Authentication
+                      {t('password_auth')}
                     </h3>
 
                     <div className="space-y-6">
@@ -770,10 +772,10 @@ const Settings = () => {
                           </div>
                           <div>
                             <p className="text-sm font-black text-slate-900">
-                              Change Password
+                              {t('change_password')}
                             </p>
                             <p className="text-[11px] text-slate-500 font-medium">
-                              Update your account password regularly.
+                              {t('change_password_desc')}
                             </p>
                           </div>
                         </div>
@@ -787,17 +789,16 @@ const Settings = () => {
                   <div className="glass-card rounded-3xl p-8 border border-red-50 bg-red-50/10 shadow-sm">
                     <div className="flex items-center gap-3 mb-6 text-red-600">
                       <AlertTriangle className="w-6 h-6" />
-                      <h3 className="text-lg font-black">Danger Zone</h3>
+                      <h3 className="text-lg font-black">{t('danger_zone')}</h3>
                     </div>
                     <p className="text-sm text-slate-600 font-medium mb-6 leading-relaxed">
-                      Once you delete your account, there is no going back.
-                      Please be certain before proceeding with this action.
+                      {t('delete_account_warning')}
                     </p>
                     <button
                       onClick={handleDeleteAccount}
                       className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 text-white font-black text-xs hover:bg-red-700 transition-all shadow-lg shadow-red-100">
                       <Trash2 className="w-4 h-4" />
-                      Delete Admin Account
+                      {t('delete_account')}
                     </button>
                   </div>
                 </motion.div>
@@ -825,7 +826,7 @@ const Settings = () => {
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
               <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md pointer-events-auto p-8 border border-slate-100">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-black text-slate-900">Change Password</h3>
+                  <h3 className="text-xl font-black text-slate-900">{t('change_password')}</h3>
                   <button onClick={() => setIsPasswordModalOpen(false)} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors">
                     <X className="w-5 h-5" />
                   </button>
@@ -833,7 +834,7 @@ const Settings = () => {
 
                 <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Password</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('current_password')}</label>
                     <input
                       type="password"
                       {...registerPassword("currentPassword")}
@@ -842,7 +843,7 @@ const Settings = () => {
                     {passwordErrors.currentPassword && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{passwordErrors.currentPassword.message}</p>}
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">New Password</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('new_password')}</label>
                     <input
                       type="password"
                       {...registerPassword("newPassword")}
@@ -851,7 +852,7 @@ const Settings = () => {
                     {passwordErrors.newPassword && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{passwordErrors.newPassword.message}</p>}
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Confirm Password</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('confirm_password')}</label>
                     <input
                       type="password"
                       {...registerPassword("confirmPassword")}
@@ -861,7 +862,7 @@ const Settings = () => {
                   </div>
 
                   <button type="submit" className="w-full btn-modern-primary !py-3 mt-4 text-sm font-black">
-                    Update Password
+                    {t('password_updated')}
                   </button>
                 </form>
               </div>

@@ -17,6 +17,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ResponsiveContainer,
@@ -37,6 +38,7 @@ import { analyticsService } from "../../services/analyticsService";
 import { handleApiError } from "../../utils/errorHandler";
 
 const Analytics = () => {
+  const { t } = useLanguage();
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isRecentActivityOpen, setIsRecentActivityOpen] = useState(false);
   const [chartView, setChartView] = useState("Monthly");
@@ -98,7 +100,7 @@ const Analytics = () => {
     setStatusModal({
       isOpen: true,
       type: "info",
-      title: "Activity Details",
+      title: t('activity_details'),
       message: `Viewing details for: ${log.action}. Target: ${log.target}, Time: ${log.time}`,
     });
   };
@@ -110,7 +112,7 @@ const Analytics = () => {
   // Use API data or fallback to defaults
   const stats = analyticsData?.stats || [
     {
-      label: "Total Students",
+      label: "total_students",
       value: "0",
       trend: "0%",
       isPositive: true,
@@ -119,7 +121,7 @@ const Analytics = () => {
       textColor: "text-blue-600",
     },
     {
-      label: "Quiz Completion Rate",
+      label: "quiz_completion_rate",
       value: "0%",
       trend: "0%",
       isPositive: true,
@@ -128,7 +130,7 @@ const Analytics = () => {
       textColor: "text-green-600",
     },
     {
-      label: "Avg. Test Score",
+      label: "avg_test_score",
       value: "0/100",
       trend: "0%",
       isPositive: false,
@@ -158,10 +160,10 @@ const Analytics = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-              Platform Analytics
+              {t('platform_analytics')}
             </h2>
             <p className="text-sm text-slate-500 font-medium mt-1">
-              Deep dive into student performance and platform growth.
+              {t('deep_dive_analytics')}
             </p>
           </div>
           <div className="flex items-center gap-2 relative">
@@ -171,7 +173,7 @@ const Analytics = () => {
                 className={`w-full btn-modern-outline !py-2.5 !px-4 flex items-center justify-center gap-2 transition-all ${isDateRangeOpen ? "border-primary-300 bg-primary-50/30" : ""
                   }`}>
                 <Calendar className="w-4 h-4" />
-                <span className="text-xs font-bold">{dateRange}</span>
+                <span className="text-xs font-bold">{t(dateRange.toLowerCase().replace(/ /g, '_'))}</span>
                 <ChevronDown
                   className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isDateRangeOpen ? "rotate-180" : ""
                     }`}
@@ -198,7 +200,7 @@ const Analytics = () => {
                             ? "bg-primary-50 text-primary-600"
                             : "text-slate-600 hover:bg-slate-50"
                             }`}>
-                          {option}
+                          {t(option.toLowerCase().replace(/ /g, '_'))}
                         </button>
                       ))}
                     </motion.div>
@@ -210,7 +212,7 @@ const Analytics = () => {
               onClick={handleDownloadReport}
               className="flex-1 sm:flex-none btn-modern-primary !py-2.5 !px-4 flex items-center justify-center gap-2">
               <Download className="w-4 h-4" />
-              <span className="text-xs font-bold">Download Report</span>
+              <span className="text-xs font-bold">{t('download_report')}</span>
             </button>
           </div>
         </div>
@@ -223,13 +225,13 @@ const Analytics = () => {
             className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-xs font-bold text-red-900">Failed to load analytics</p>
+              <p className="text-xs font-bold text-red-900">{t('failed_load_analytics')}</p>
               <p className="text-xs text-red-700 mt-1">{error}</p>
             </div>
             <button
               onClick={fetchAnalytics}
               className="text-xs font-bold text-red-600 hover:text-red-700 underline">
-              Retry
+              {t('retry')}
             </button>
           </motion.div>
         )}
@@ -265,7 +267,7 @@ const Analytics = () => {
                   {stat.value}
                 </h4>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
-                  {stat.label}
+                  {t(stat.label)}
                 </p>
               </motion.div>
             );
@@ -278,10 +280,10 @@ const Analytics = () => {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-black text-slate-900">
-                  Registration Growth
+                  {t('registration_growth')}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  New students registered over time.
+                  {t('new_students_time')}
                 </p>
               </div>
               <div className="flex bg-slate-100 p-1 rounded-xl">
@@ -293,7 +295,7 @@ const Analytics = () => {
                       ? "bg-white shadow-sm text-primary-600"
                       : "text-slate-500 hover:text-slate-700"
                       }`}>
-                    {view}
+                    {t(view.toLowerCase())}
                   </button>
                 ))}
               </div>
@@ -359,10 +361,10 @@ const Analytics = () => {
 
           <div className="glass-card rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col">
             <h3 className="text-lg font-black text-slate-900 mb-2">
-              Quiz Performance
+              {t('quiz_performance')}
             </h3>
             <p className="text-xs text-slate-500 font-medium mb-8">
-              Score distribution across all modules.
+              {t('score_distribution')}
             </p>
 
             <div className="h-[250px] w-full relative">
@@ -398,7 +400,7 @@ const Analytics = () => {
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-black text-slate-900">84%</span>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Avg Score
+                  {t('avg_score')}
                 </span>
               </div>
             </div>
@@ -406,21 +408,21 @@ const Analytics = () => {
             <div className="mt-6 space-y-3">
               {[
                 {
-                  label: "High Scores (90+)",
+                  label: t('high_scores'),
                   color: "bg-green-500",
                   value: "24%",
                 },
                 {
-                  label: "Average (70-89)",
+                  label: t('average_scores'),
                   color: "bg-blue-500",
                   value: "48%",
                 },
                 {
-                  label: "Passing (50-69)",
+                  label: t('passing_scores'),
                   color: "bg-orange-500",
                   value: "18%",
                 },
-                { label: "Below Avg", color: "bg-red-500", value: "10%" },
+                { label: t('below_avg'), color: "bg-red-500", value: "10%" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -444,17 +446,17 @@ const Analytics = () => {
         <div className="glass-card rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
           <div className="p-5 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
             <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
-              Recent System Activity
+              {t('recent_system_activity')}
             </h3>
             <button
               onClick={handleViewAllLogs}
               className="text-xs font-black text-primary-600 hover:text-primary-700 transition-colors">
-              View All Logs
+              {t('view_all_logs')}
             </button>
           </div>
           <div className="p-2">
             {recentActivity.length === 0 ? (
-              <div className="p-4 text-center text-slate-500 text-sm">No recent activity found.</div>
+              <div className="p-4 text-center text-slate-500 text-sm">{t('no_activity_found')}</div>
             ) : (
               recentActivity.map((log, idx) => {
                 const Icon = Users; // Default icon for now or map based on log type
@@ -472,7 +474,7 @@ const Analytics = () => {
                           {log.action}
                         </p>
                         <p className="text-[10px] text-slate-500 font-medium">
-                          Target:{" "}
+                          {t('target')}:{" "}
                           <span className="text-slate-700 font-bold">
                             {log.target}
                           </span>
@@ -509,7 +511,7 @@ const Analytics = () => {
       <ExportOptionsModal
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
-        title="Export Analytics Data"
+        title={t('export_analytics_data')}
       />
 
       <RecentActivityModal

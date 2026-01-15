@@ -14,6 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useLanguage } from "../context/LanguageContext";
 
 const quizSchema = z
   .object({
@@ -41,6 +42,7 @@ const quizSchema = z
   );
 
 const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("Basic");
 
   const {
@@ -97,19 +99,18 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={quiz ? "Edit Quiz" : "Create New Quiz"}
+      title={quiz ? t('edit_quiz') ?? "Edit Quiz" : t('create_new_quiz')}
       maxWidth="max-w-2xl">
       <div className="flex bg-slate-100 p-1 rounded-2xl w-fit mb-8">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${
-              activeTab === tab
+            className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === tab
                 ? "bg-white text-primary-600 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"
-            }`}>
-            {tab}
+              }`}>
+            {tab === "Basic" ? t('basic') : tab === "Questions" ? t('questions') : t('settings_tab')}
           </button>
         ))}
       </div>
@@ -119,7 +120,7 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
           <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                Quiz Title
+                {t('quiz_title')}
               </label>
               <div className="relative group">
                 <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
@@ -127,9 +128,8 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
                   {...register("title")}
                   type="text"
                   placeholder="e.g. Mid-Term Assessment"
-                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                    errors.title ? "border-red-500 focus:ring-red-500/10" : ""
-                  }`}
+                  className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.title ? "border-red-500 focus:ring-red-500/10" : ""
+                    }`}
                 />
               </div>
               {errors.title && (
@@ -141,17 +141,16 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                Description
+                {t('description')}
               </label>
               <textarea
                 {...register("description")}
                 rows={3}
                 placeholder="Briefly describe what this quiz covers..."
-                className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${
-                  errors.description
+                className={`modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full resize-none ${errors.description
                     ? "border-red-500 focus:ring-red-500/10"
                     : ""
-                }`}
+                  }`}
               />
               {errors.description && (
                 <p className="text-[10px] font-bold text-red-500 ml-1 flex items-center gap-1">
@@ -164,29 +163,28 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                  Quiz Type
+                  {t('quiz_type')}
                 </label>
                 <select
                   {...register("type")}
                   className="modern-input !py-3 bg-slate-50 border-transparent focus:bg-white w-full">
-                  <option value="Google Form">Google Form</option>
-                  <option value="Internal">Internal (Beta)</option>
+                  <option value="Google Form">{t('google_form')}</option>
+                  <option value="Internal">{t('internal')} (Beta)</option>
                 </select>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                  Time Limit (Mins)
+                  {t('time_limit_mins')}
                 </label>
                 <div className="relative group">
                   <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
                   <input
                     {...register("timeLimit")}
                     type="number"
-                    className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                      errors.timeLimit
+                    className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.timeLimit
                         ? "border-red-500 focus:ring-red-500/10"
                         : ""
-                    }`}
+                      }`}
                   />
                 </div>
                 {errors.timeLimit && (
@@ -201,7 +199,7 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
             {selectedType === "Google Form" && (
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                  External Link
+                  {t('external_link')}
                 </label>
                 <div className="relative group">
                   <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-300 group-focus-within:text-primary-500 transition-colors" />
@@ -209,9 +207,8 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
                     {...register("link")}
                     type="url"
                     placeholder="https://forms.google.com/..."
-                    className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${
-                      errors.link ? "border-red-500 focus:ring-red-500/10" : ""
-                    }`}
+                    className={`modern-input !pl-12 !py-3 bg-slate-50 border-transparent focus:bg-white w-full ${errors.link ? "border-red-500 focus:ring-red-500/10" : ""
+                      }`}
                   />
                 </div>
                 {errors.link && (
@@ -232,10 +229,9 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
                   <LinkIcon className="w-8 h-8" />
                 </div>
                 <div className="max-w-sm">
-                  <h4 className="font-black text-slate-900">External Quiz</h4>
+                  <h4 className="font-black text-slate-900">{t('external_quiz')}</h4>
                   <p className="text-xs text-slate-500 font-medium mt-1">
-                    Questions for Google Forms are managed directly on their
-                    platform. EduPortal will track the completion status.
+                    {t('external_quiz_desc')}
                   </p>
                 </div>
               </div>
@@ -268,7 +264,7 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
                   className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-slate-400 hover:border-primary-300 hover:bg-primary-50/30 hover:text-primary-600 transition-all">
                   <Plus className="w-4 h-4" />
                   <span className="text-xs font-black uppercase tracking-widest">
-                    Add Question
+                    {t('add_question')}
                   </span>
                 </button>
               </div>
@@ -281,12 +277,12 @@ const QuizEditorModal = ({ isOpen, onClose, quiz = null }) => {
             type="button"
             onClick={onClose}
             className="flex-1 btn-modern-outline !py-3">
-            Cancel
+            {t('cancel')}
           </button>
           <button
             type="submit"
             className="flex-[2] btn-modern-primary !py-3 flex items-center justify-center gap-2">
-            {quiz ? "Update Quiz" : "Publish Quiz"}
+            {quiz ? t('update_quiz') : t('publish_quiz')}
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
