@@ -67,6 +67,7 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
               src={student.avatar}
               alt={student.name}
               className="w-24 h-24 rounded-3xl object-cover ring-4 ring-white shadow-xl"
+              loading="lazy"
             />
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-xl border-4 border-slate-50 flex items-center justify-center shadow-lg">
               <CheckCircle2 className="w-4 h-4 text-white" />

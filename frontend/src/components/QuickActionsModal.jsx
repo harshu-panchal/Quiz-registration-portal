@@ -61,6 +61,7 @@ const QuickActionsModal = ({ isOpen, onClose, student, onAction }) => {
             src={student.avatar}
             alt=""
             className="w-12 h-12 rounded-xl object-cover ring-2 ring-white shadow-sm"
+            loading="lazy"
           />
           <div>
             <h4 className="font-black text-slate-900 text-sm leading-tight">

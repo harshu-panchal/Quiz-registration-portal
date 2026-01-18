@@ -52,6 +52,7 @@ const Sidebar = ({ role = "student", onClose }) => {
             src={user?.avatar || `https://i.pravatar.cc/150?u=${user?.email}`}
             alt="Avatar"
             className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary-50 shadow-md"
+            loading="lazy"
           />
           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
         </motion.div>

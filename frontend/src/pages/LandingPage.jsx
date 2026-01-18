@@ -199,6 +199,7 @@ const LandingPage = () => {
             src={headerLogo}
             alt={t("competition_name")}
             className="h-20 w-auto object-contain"
+            loading="lazy"
           />
         </div>
 
@@ -337,6 +338,7 @@ const LandingPage = () => {
               src={quizLogo}
               alt={t("competition_name")}
               className="w-64 h-auto md:w-80 lg:w-96 object-contain"
+              loading="lazy"
               style={{
                 filter: "drop-shadow(0 10px 30px rgba(99, 102, 241, 0.3))"
               }}
