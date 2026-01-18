@@ -403,6 +403,7 @@ const Settings = () => {
                           src={user?.avatar || "https://i.pravatar.cc/150?u=admin"}
                           alt="Admin"
                           className="w-24 h-24 rounded-3xl object-cover ring-4 ring-slate-50 group-hover:ring-primary-100 transition-all shadow-md"
+                          loading="lazy"
                         />
                         <button
                           onClick={handleCameraClick}
