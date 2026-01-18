@@ -3,6 +3,7 @@ const {
     getStudents,
     getStudent,
     createStudent,
+    registerStudent,
     updateStudent,
     deleteStudent,
     bulkDeleteStudents,
@@ -15,7 +16,10 @@ const { protect, admin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// All routes require authentication and admin role
+// Public route for student registration (no auth required)
+router.post('/register', registerStudent);
+
+// All other routes require authentication and admin role
 router.use(protect);
 router.use(admin);
 

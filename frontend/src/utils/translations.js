@@ -429,7 +429,165 @@ export const translations = {
         pass_rate: "Pass Rate",
         average_score_trend: "Average Score Trend",
         top_performers: "Top Performers",
-        needs_attention: "Needs Attention"
+        needs_attention: "Needs Attention",
+
+        // Registration
+        register_now: "Register Now",
+
+        // Registration Form
+        register_for_quiz: "Register for the Quiz Competition",
+        registration_desc: "Fill out the form below to secure your spot in our upcoming quiz competition. Payment required to complete registration.",
+        registration_form: "Registration Form",
+        fill_details: "Please fill in all your details accurately",
+        academic_info: "Academic Information",
+        location_info: "Location",
+        state: "State",
+        email: "Email",
+        name: "Name",
+        proceed_to_payment: "Proceed to Payment",
+        one_time_fee: "One-time payment",
+        payment_secure: "Your payment information is secure and encrypted. By proceeding, you agree to our terms and conditions.",
+        registration_failed: "Registration Failed",
+        instant_confirmation: "Instant Confirmation",
+        instant_confirmation_desc: "Get immediate confirmation after registration",
+        secure_payment_desc: "100% secure payment gateway",
+        easy_process: "Easy Process",
+        easy_process_desc: "Simple and quick registration",
+
+        // Thank You Page
+        registration_successful: "Registration Successful!",
+        thank_you_message: "Thank you for registering! Your payment has been confirmed and your details have been saved.",
+        student_details: "Student Details",
+        registration_confirmation: "Your registration confirmation",
+        payment_details: "Payment Details",
+        payment_id: "Payment ID",
+        order_id: "Order ID",
+        download_print: "Download / Print",
+        next_steps: "What's Next?",
+        next_steps_desc: "You will receive a confirmation email shortly with further instructions. Please keep this confirmation safe for your records. For any queries, contact our support team.",
+
+        // Quiz Competition - "Hum Banayenge Lakhpati"
+        competition_name: "Hum Banayenge Lakhpati",
+        competition_tagline: "Turn Knowledge into Gold",
+        competition_subtitle: "Transform Your Learning into Rewards",
+
+        // Hero Section
+        hero_title_part1: "Where Knowledge Becomes",
+        hero_title_part2: "Golden Coins",
+        hero_description: "Join India's most exciting quiz competition where your intelligence is rewarded with real prizes. Test your knowledge, compete with thousands, and win big!",
+
+        // Competition Overview
+        overview_title: "About the Competition",
+        overview_question: "Can Knowledge Make You a Lakhpati?",
+        overview_answer: "Yes! This isn't just a quiz competition - it's a platform where intelligence is valued and rewarded. Your knowledge has real worth, and we're here to prove it.",
+        overview_opportunity: "This is your chance to test your abilities and show the world what you know!",
+
+        // Journey / Rounds
+        journey_title: "Your Journey to Success",
+        journey_subtitle: "4 Rounds to Victory",
+        round_1_name: "Preliminary Round",
+        round_1_desc: "Online quiz via Google Forms - Complete from home",
+        round_2_name: "Quiz+ Round 2",
+        round_2_desc: "Advance to the next level of challenges",
+        round_3_name: "Semi-Final",
+        round_3_desc: "Compete with the best - Online round",
+        round_4_name: "Grand Finale",
+        round_4_desc: "The ultimate showdown - Become a winner!",
+        first_three_online: "First 3 rounds are online - take them from home!",
+
+        // Eligibility
+        eligibility_title: "Eligibility Criteria",
+        eligibility_subtitle: "Who Can Participate?",
+        eligibility_age: "Age 15 or Below",
+        eligibility_age_desc: "(by 2026)",
+        eligibility_class: "Class 5 to 10",
+        eligibility_class_desc: "All grades welcome",
+        eligibility_school: "Any School Type",
+        eligibility_school_desc: "Government or Private",
+        all_eligible: "Open to All Students",
+        check_eligible: "Check if you're eligible",
+
+        // Benefits
+        benefits_title: "Why Participate?",
+        benefits_subtitle: "More Than Just a Prize",
+        benefit_1_title: "Build Confidence",
+        benefit_1_desc: "Develop unshakeable belief in your abilities",
+        benefit_2_title: "Gain Recognition",
+        benefit_2_desc: "Be celebrated in your school, city, and community",
+        benefit_3_title: "Personal Growth",
+        benefit_3_desc: "Learn discipline and develop strong study habits",
+        benefit_4_title: "Time Management",
+        benefit_4_desc: "Master the art of working efficiently under deadlines",
+        benefit_5_title: "Handle Pressure",
+        benefit_5_desc: "Perform your best even in challenging situations",
+        benefit_6_title: "Real-World Learning",
+        benefit_6_desc: "Connect classroom knowledge to practical applications",
+
+        // How to Register
+        how_to_register: "How to Register",
+        how_step_1: "Fill Registration Form",
+        how_step_1_desc: "Provide your details accurately",
+        how_step_2: "Pay Registration Fee",
+        how_step_2_desc: "Secure payment gateway",
+        how_step_3: "Get Confirmation",
+        how_step_3_desc: "Receive confirmation email",
+        how_step_4: "Receive Quiz Links",
+        how_step_4_desc: "Quiz links sent to your email",
+
+        // Registration Form - Additional Fields
+        school_type: "School Type",
+        school_type_government: "Government School",
+        school_type_private: "Private School",
+        select_school_type: "Select School Type",
+        parent_guardian_contact: "Parent/Guardian Contact",
+        parent_contact_placeholder: "+91 9876543210",
+
+        // Validation Messages
+        age_too_high: "Age must be 15 or below by 2026",
+        class_invalid: "Only students from Class 5 to 10 can register",
+        school_type_required: "Please select your school type",
+        parent_contact_required: "Parent/Guardian contact is required",
+
+        // Success Messages
+        registration_success_title: "Welcome to Hum Banayenge Lakhpati!",
+        registration_success_message: "Your registration is complete! You'll receive quiz links via email for each round. Check your inbox regularly.",
+        quiz_links_email: "Quiz links will be sent to your email",
+        stay_tuned: "Stay tuned for round announcements!",
+
+        // Call to Action
+        start_your_journey: "Start Your Journey",
+        join_competition: "Join the Competition",
+        register_today: "Register Today",
+        limited_seats: "Limited Seats Available",
+        dont_miss_out: "Don't Miss This Opportunity",
+
+        // Social Proof
+        students_registered: "Students Registered",
+        schools_participating: "Schools Participating",
+        prize_worth: "Prize Worth",
+        success_rate: "Success Rate",
+
+        // FAQ
+        faq_title: "Frequently Asked Questions",
+        faq_q1: "What is the registration fee?",
+        faq_a1: "The registration fee is ₹500 (one-time payment)",
+        faq_q2: "How will I receive quiz links?",
+        faq_a2: "Quiz links for each round will be sent to your registered email address",
+        faq_q3: "Can I participate if I'm in class 4 or 11?",
+        faq_a3: "No, only students from classes 5 to 10 are eligible",
+        faq_q4: "Are government school students eligible?",
+        faq_a4: "Yes! Both government and private school students can participate",
+        faq_q5: "Where is the Grand Finale?",
+        faq_a5: "Location will be announced to qualified participants",
+
+        // Additional
+        terms_and_conditions: "Terms and Conditions",
+        privacy_policy: "Privacy Policy",
+        contact_support: "Contact Support",
+        about_competition: "About Competition",
+        rules_regulations: "Rules & Regulations",
+        need_help: "Need Help?",
+        contact_us: "Contact Us"
     },
     hi: {
         // Shared / Common
@@ -860,6 +1018,164 @@ export const translations = {
         pass_rate: "उत्तीर्ण दर",
         average_score_trend: "औसत स्कोर रुझान",
         top_performers: "शीर्ष प्रदर्शनकर्ता",
-        needs_attention: "ध्यान देने की आवश्यकता"
+        needs_attention: "ध्यान देने की आवश्यकता",
+
+        // Registration
+        register_now: "अभी पंजीकरण करें",
+
+        // Registration Form
+        register_for_quiz: "क्विज़ प्रतियोगिता के लिए पंजीकरण करें",
+        registration_desc: "आगामी क्विज़ प्रतियोगिता में अपना स्थान सुरक्षित करने के लिए नीचे फॉर्म भरें। पंजीकरण पूरा करने के लिए भुगतान आवश्यक है।",
+        registration_form: "पंजीकरण फॉर्म",
+        fill_details: "कृपया अपना सभी विवरण सही ढंग से भरें",
+        academic_info: "शैक्षणिक जानकारी",
+        location_info: "स्थान",
+        state: "राज्य",
+        email: "ईमेल",
+        name: "नाम",
+        proceed_to_payment: "भुगतान के लिए आगे बढ़ें",
+        one_time_fee: "एकमुश्त भुगतान",
+        payment_secure: "आपकी भुगतान जानकारी सुरक्षित और एन्क्रिप्टेड है। आगे बढ़कर, आप हमारे नियमों और शर्तों से सहमत हैं।",
+        registration_failed: "पंजीकरण विफल",
+        instant_confirmation: "तुरंत पुष्टि",
+        instant_confirmation_desc: "पंजीकरण के बाद तुरंत पुष्टि प्राप्त करें",
+        secure_payment_desc: "100% सुरक्षित भुगतान गेटवे",
+        easy_process: "आसान प्रक्रिया",
+        easy_process_desc: "सरल और त्वरित पंजीकरण",
+
+        // Thank You Page
+        registration_successful: "पंजीकरण सफल!",
+        thank_you_message: "पंजीकरण के लिए धन्यवाद! आपके भुगतान की पुष्टि हो गई है और आपका विवरण सहेज लिया गया है।",
+        student_details: "छात्र विवरण",
+        registration_confirmation: "आपकी पंजीकरण पुष्टि",
+        payment_details: "भुगतान विवरण",
+        payment_id: "भुगतान आईडी",
+        order_id: "आदेश आईडी",
+        download_print: "डाउनलोड / प्रिंट",
+        next_steps: "आगे क्या?",
+        next_steps_desc: "आपको शीघ्र ही आगे के निर्देशों के साथ एक पुष्टि ईमेल प्राप्त होगा। कृपया अपने रिकॉर्ड के लिए यह पुष्टि सुरक्षित रखें। किसी भी प्रश्न के लिए, हमारी सहायता टीम से संपर्क करें।",
+
+        // Quiz Competition - "Hum Banayenge Lakhpati"
+        competition_name: "हम बनाएंगे लखपती",
+        competition_tagline: "ज्ञान से सोने के सिक्के",
+        competition_subtitle: "अपनी शिक्षा को पुरस्कारों में बदलें",
+
+        // Hero Section
+        hero_title_part1: "जहां ज्ञान बन जाए",
+        hero_title_part2: "सोने के सिक्के",
+        hero_description: "भारत की सबसे रोमांचक क्विज़ प्रतियोगिता में शामिल हों जहां आपकी बुद्धिमत्ता को वास्तविक पुरस्कारों से सम्मानित किया जाता है। अपने ज्ञान का परीक्षण करें, हजारों के साथ प्रतिस्पर्धा करें, और बड़ी जीत हासिल करें!",
+
+        // Competition Overview
+        overview_title: "प्रतियोगिता के बारे में",
+        overview_question: "क्या ज्ञान आपको लखपती बना सकता है?",
+        overview_answer: "हां! यह सिर्फ एक क्विज़ प्रतियोगिता नहीं है - यह एक ऐसा मंच है जहां बुद्धिमत्ता को महत्व दिया जाता है और पुरस्कृत किया जाता है। आपके ज्ञान का वास्तविक मूल्य है, और हम इसे साबित करने के लिए यहां हैं।",
+        overview_opportunity: "यह आपकी क्षमताओं का परीक्षण करने और दुनिया को दिखाने का मौका है कि आप क्या जानते हैं!",
+
+        // Journey / Rounds
+        journey_title: "सफलता की आपकी यात्रा",
+        journey_subtitle: "जीत के 4 दौर",
+        round_1_name: "प्रारंभिक दौर",
+        round_1_desc: "गूगल फॉर्म के माध्यम से ऑनलाइन क्विज़ - घर से पूरा करें",
+        round_2_name: "क्विज़+  दौर 2",
+        round_2_desc: "चुनौतियों के अगले स्तर पर आगे बढ़ें",
+        round_3_name: "सेमी-फाइनल",
+        round_3_desc: "सर्वश्रेष्ठ के साथ प्रतिस्पर्धा करें - ऑनलाइन दौर",
+        round_4_name: "ग्रांड फिनाले",
+        round_4_desc: "अंतिम मुकाबला - विजेता बनें!",
+        first_three_online: "पहले 3 दौर ऑनलाइन हैं - उन्हें घर से लें!",
+
+        // Eligibility
+        eligibility_title: "पात्रता मानदंड",
+        eligibility_subtitle: "कौन भाग ले सकता है?",
+        eligibility_age: "15 वर्ष या उससे कम आयु",
+        eligibility_age_desc: "(2026 तक)",
+        eligibility_class: "कक्षा 5 से 10",
+        eligibility_class_desc: "सभी ग्रेड स्वागत है",
+        eligibility_school: "कोई भी स्कूल प्रकार",
+        eligibility_school_desc: "सरकारी या निजी",
+        all_eligible: "सभी छात्रों के लिए खुला",
+        check_eligible: "जांचें कि क्या आप पात्र हैं",
+
+        // Benefits
+        benefits_title: "भाग क्यों लें?",
+        benefits_subtitle: "सिर्फ पुरस्कार से अधिक",
+        benefit_1_title: "आत्मविश्वास बनाएं",
+        benefit_1_desc: "अपनी क्षमताओं में अटूट विश्वास विकसित करें",
+        benefit_2_title: "पहचान प्राप्त करें",
+        benefit_2_desc: "अपने स्कूल, शहर और समुदाय में सम्मानित हों",
+        benefit_3_title: "व्यक्तिगत विकास",
+        benefit_3_desc: "अनुशासन सीखें और मजबूत अध्ययन की आदतें विकसित करें",
+        benefit_4_title: "समय प्रबंधन",
+        benefit_4_desc: "समय सीमा के तहत कुशलता से काम करने की कला में महारत हासिल करें",
+        benefit_5_title: "दबाव को संभालना",
+        benefit_5_desc: "चुनौतीपूर्ण स्थितियों में भी अपना सर्वश्रेष्ठ प्रदर्शन करें",
+        benefit_6_title: "वास्तविक दुनिया की शिक्षा",
+        benefit_6_desc: "कक्षा के ज्ञान को व्यावहारिक अनुप्रयोगों से जोड़ें",
+
+        // How to Register
+        how_to_register: "पंजीकरण कैसे करें",
+        how_step_1: "पंजीकरण फॉर्म भरें",
+        how_step_1_desc: "अपना विवरण सही ढंग से प्रदान करें",
+        how_step_2: "पंजीकरण शुल्क का भुगतान करें",
+        how_step_2_desc: "सुरक्षित भुगतान गेटवे",
+        how_step_3: "पुष्टि प्राप्त करें",
+        how_step_3_desc: "पुष्टि ईमेल प्राप्त करें",
+        how_step_4: "क्विज़ लिंक प्राप्त करें",
+        how_step_4_desc: "आपके ईमेल पर क्विज़ लिंक भेजे गए",
+
+        // Registration Form - Additional Fields
+        school_type: "स्कूल प्रकार",
+        school_type_government: "सरकारी स्कूल",
+        school_type_private: "निजी स्कूल",
+        select_school_type: "स्कूल प्रकार चुनें",
+        parent_guardian_contact: "माता-पिता/अभिभावक संपर्क",
+        parent_contact_placeholder: "+91 9876543210",
+
+        // Validation Messages
+        age_too_high: "2026 तक आयु 15 वर्ष या उससे कम होनी चाहिए",
+        class_invalid: "केवल कक्षा 5 से 10 के छात्र ही पंजीकरण कर सकते हैं",
+        school_type_required: "कृपया अपना स्कूल प्रकार चुनें",
+        parent_contact_required: "माता-पिता/अभिभावक संपर्क आवश्यक है",
+
+        // Success Messages
+        registration_success_title: "हम बनाएंगे लखपती में आपका स्वागत है!",
+        registration_success_message: "आपका पंजीकरण पूर्ण है! आपको प्रत्येक दौर के लिए ईमेल के माध्यम से क्विज़ लिंक प्राप्त होंगे। नियमित रूप से अपना इनबॉक्स जांचें।",
+        quiz_links_email: "क्विज़ लिंक आपके ईमेल पर भेजे जाएंगे",
+        stay_tuned: "दौर की घोषणाओं के लिए बने रहें!",
+
+        // Call to Action
+        start_your_journey: "अपनी यात्रा शुरू करें",
+        join_competition: "प्रतियोगिता में शामिल हों",
+        register_today: "आज ही पंजीकरण करें",
+        limited_seats: "सीमित सीटें उपलब्ध",
+        dont_miss_out: "इस अवसर को न चूकें",
+
+        // Social Proof
+        students_registered: "पंजीकृत छात्र",
+        schools_participating: "भाग लेने वाले स्कूल",
+        prize_worth: "पुरस्कार मूल्य",
+        success_rate: "सफलता दर",
+
+        // FAQ
+        faq_title: "अक्सर पूछे जाने वाले प्रश्न",
+        faq_q1: "पंजीकरण शुल्क क्या है?",
+        faq_a1: "पंजीकरण शुल्क ₹500 है (एकमुश्त भुगतान)",
+        faq_q2: "मुझे क्विज़ लिंक कैसे मिलेंगे?",
+        faq_a2: "प्रत्येक दौर के लिए क्विज़ लिंक आपके पंजीकृत ईमेल पते पर भेजे जाएंगे",
+        faq_q3: "क्या मैं कक्षा 4 या 11 में होने पर भाग ले सकता हूं?",
+        faq_a3: "नहीं, केवल कक्षा 5 से 10 के छात्र ही पात्र हैं",
+        faq_q4: "क्या सरकारी स्कूल के छात्र पात्र हैं?",
+        faq_a4: "हां! सरकारी और निजी दोनों स्कूलों के छात्र भाग ले सकते हैं",
+        faq_q5: "ग्रांड फिनाले कहां है?",
+        faq_a5: "स्थान की घोषणा योग्य प्रतिभागियों को की जाएगी",
+
+        // Additional
+        terms_and_conditions: "नियम और शर्तें",
+        privacy_policy: "गोपनीयता नीति",
+        contact_support: "सहायता से संपर्क करें",
+        about_competition: "प्रतियोगिता के बारे में",
+        rules_regulations: "नियम और विनियम",
+        need_help: "सहायता चाहिए?",
+        contact_us: "हमसे संपर्क करें"
     }
 };

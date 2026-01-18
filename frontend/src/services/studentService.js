@@ -36,6 +36,16 @@ export const studentService = {
     },
 
     /**
+     * Register new student with payment (Public - No auth required)
+     * @param {Object} registrationData - Student information + payment details
+     * @returns {Promise} Created student data
+     */
+    registerStudent: async (registrationData) => {
+        const response = await api.post('/students/register', registrationData);
+        return response.data;
+    },
+
+    /**
      * Update existing student
      * @param {string} id - Student ID
      * @param {Object} studentData - Updated student information

@@ -2,7 +2,9 @@ const asyncHandler = require('express-async-handler');
 const Student = require('../models/Student');
 const User = require('../models/User');
 const Quiz = require('../models/Quiz');
+const Transaction = require('../models/Transaction');
 const googleSheetsService = require('../services/googleSheetsService');
+const { verifyPaymentSignature } = require('./paymentController');
 
 // @desc    Get all students
 // @route   GET /api/students
@@ -293,6 +295,96 @@ const getStudentStats = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Register new student with payment (Public)
+// @route   POST /api/students/register
+// @access  Public
+const registerStudent = asyncHandler(async (req, res) => {
+    const {
+        name,
+        email,
+        phone,
+        school,
+        class: studentClass,
+        city,
+        state,
+        age,
+        gender,
+        paymentId,
+        orderId,
+        signature,
+        amount
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !phone || !school || !studentClass || !city || !state || !age || !gender) {
+        res.status(400);
+        throw new Error('Please provide all required student information');
+    }
+
+    // Validate payment details
+    if (!paymentId || !orderId || !signature || !amount) {
+        res.status(400);
+        throw new Error('Payment information is incomplete');
+    }
+
+    // Verify payment signature
+    const isValidPayment = verifyPaymentSignature(orderId, paymentId, signature);
+
+    if (!isValidPayment) {
+        res.status(400);
+        throw new Error('Invalid payment signature');
+    }
+
+    // Check if student already exists
+    const studentExists = await Student.findOne({ email });
+
+    if (studentExists) {
+        res.status(400);
+        throw new Error('A student with this email has already registered');
+    }
+
+    // Create student record
+    const student = await Student.create({
+        name,
+        email,
+        phone,
+        school,
+        class: studentClass,
+        city,
+        state,
+        age,
+        gender,
+        status: 'Active', // Automatically activate since payment is verified
+        paymentId,
+        orderId,
+        paymentSignature: signature,
+        paymentStatus: 'Paid',
+        paymentDate: new Date(),
+    });
+
+    // Create transaction record
+    await Transaction.create({
+        studentId: student._id,
+        transactionId: paymentId, // Razorpay payment ID
+        orderId,
+        amount,
+        source: 'Student Registration', // Required field
+        type: 'Income', // Must be one of: Income, Payout, Refund
+        status: 'Completed', // Must be one of: Completed, Pending, Failed
+        paymentMethod: 'Razorpay',
+        description: `Quiz registration payment for ${name}`,
+        city,
+        userId: student._id, // Use student ID as userId for this transaction
+    });
+
+    res.status(201).json({
+        success: true,
+        data: student,
+        message: 'Registration successful! Welcome to EduPortal.',
+    });
+});
+
+
 // @desc    Get filter options (schools, classes, cities)
 // @route   GET /api/students/filters
 // @access  Private/Admin
@@ -315,6 +407,7 @@ module.exports = {
     getStudents,
     getStudent,
     createStudent,
+    registerStudent,
     updateStudent,
     deleteStudent,
     bulkDeleteStudents,

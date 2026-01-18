@@ -57,8 +57,6 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      isOpen={isOpen}
-      onClose={onClose}
       title={t('student_profile')}
       maxWidth="max-w-2xl">
       <div className="space-y-8">
@@ -220,8 +218,8 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
                   </p>
                   <span
                     className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${quiz.status === "Passed"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-orange-100 text-orange-600"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-orange-100 text-orange-600"
                       }`}>
                     {quiz.status}
                   </span>
@@ -233,7 +231,6 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
 
         <div className="flex gap-3 pt-4 border-t border-slate-100">
           <button
-            onClick={() => setIsReportOpen(true)}
             onClick={() => setIsReportOpen(true)}
             className="flex-1 btn-modern-outline !py-3 !text-xs font-black">
             {t('generate_report')}

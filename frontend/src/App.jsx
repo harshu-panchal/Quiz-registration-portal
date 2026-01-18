@@ -8,20 +8,20 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
 
-import LoginPage from "./pages/auth/LoginPage";
-import RegisterPage from "./pages/auth/RegisterPage";
 import AdminLoginPage from "./pages/auth/AdminLoginPage";
 import LandingPage from "./pages/LandingPage";
+import RegistrationPage from "./pages/RegistrationPage";
+import PaymentSuccessAnimation from "./pages/PaymentSuccessAnimation";
+import ThankYouPage from "./pages/ThankYouPage";
 
-// Protected Route Wrapper
+// Protected Route Wrapper (Admin only now)
 const ProtectedRoute = ({ children, role }) => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/admin/login" />;
   if (role && user.role !== role) return <Navigate to="/" />;
   return children;
 };
 
-import StudentDashboard from "./pages/student/StudentDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentList from "./pages/admin/StudentList";
 import Analytics from "./pages/admin/Analytics";
@@ -35,19 +35,11 @@ function App() {
         <Router>
           <Routes>
             {/* Public Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/payment-success" element={<PaymentSuccessAnimation />} />
+            <Route path="/thank-you" element={<ThankYouPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
-
-            {/* Student Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute role="student">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
 
             {/* Admin Routes */}
             <Route
@@ -93,7 +85,6 @@ function App() {
             />
 
             {/* Default Route */}
-            <Route path="/" element={<LandingPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
@@ -103,3 +94,4 @@ function App() {
 }
 
 export default App;
+

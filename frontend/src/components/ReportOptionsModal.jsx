@@ -59,8 +59,6 @@ const ReportOptionsModal = ({ isOpen, onClose, student }) => {
       setStatusModal({
         isOpen: true,
         type: "success",
-        isOpen: true,
-        type: "success",
         title: t('report_ready'),
         message: t('report_generated_msg'),
       });
