@@ -396,6 +396,7 @@ const StudentList = () => {
                               src={student.avatar}
                               alt=""
                               className="w-10 h-10 rounded-xl object-cover ring-2 ring-white group-hover:ring-primary-100 transition-all shadow-sm"
+                              loading="lazy"
                             />
                             <div
                               className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-white rounded-full ${student.status === "Active"

@@ -548,6 +548,7 @@ const AdminDashboard = () => {
                             src={student.avatar}
                             alt=""
                             className="w-7 h-7 rounded-lg object-cover ring-2 ring-white group-hover:ring-primary-50 transition-all"
+                            loading="lazy"
                           />
                           <button
                             onClick={() => handleViewStudent(student)}
