@@ -82,6 +82,7 @@ const DashboardLayout = ({ children, role = "student" }) => {
                 src="https://i.pravatar.cc/150?u=current"
                 alt="User"
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
           </div>

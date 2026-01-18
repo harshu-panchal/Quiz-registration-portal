@@ -85,6 +85,7 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
               src={student.avatar}
               alt={student.name}
               className="w-12 h-12 rounded-xl object-cover"
+              loading="lazy"
             />
             <div>
               <h4 className="font-black text-slate-900 text-sm">
@@ -112,8 +113,8 @@ const ContactStudentModal = ({ isOpen, onClose, student }) => {
                     type="button"
                     onClick={() => setValue("contactMethod", method.id)}
                     className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${contactMethod === method.id
-                        ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
-                        : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
+                      ? "bg-primary-50 border-primary-200 text-primary-600 shadow-sm"
+                      : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
                       }`}>
                     <method.icon className="w-5 h-5" />
                     <span className="text-[10px] font-black uppercase tracking-widest">
